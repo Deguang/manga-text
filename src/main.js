@@ -175,7 +175,8 @@ function renderElement(el) {
 
   const textEl = document.createElement('div');
   textEl.className = 'text-display';
-  textEl.style.fontFamily = `"${el.fontFamily}", cursive, sans-serif`;
+  const ff = el.fontFamily.includes(',') ? el.fontFamily : `"${el.fontFamily}"`;
+  textEl.style.fontFamily = `${ff}, cursive, sans-serif`;
   textEl.style.fontSize = el.fontSize + 'px';
   textEl.style.fontWeight = el.bold ? '700' : '400';
   textEl.style.color = el.color;
@@ -340,9 +341,10 @@ function renderLayerPanel() {
     li.className = `layer-item${el.id === state.selectedId ? ' selected' : ''}`;
     let layerPreviewText = el.text || '(空文字)';
     if (el.uppercase) layerPreviewText = layerPreviewText.toUpperCase();
+    const ff = el.fontFamily.includes(',') ? el.fontFamily : `"${el.fontFamily}"`;
     li.innerHTML = `
       <span class="layer-icon">T</span>
-      <span class="layer-text" style="font-family:'${el.fontFamily}',cursive; font-weight:${el.bold?'700':'400'}">${layerPreviewText}</span>
+      <span class="layer-text" style="font-family:${ff},cursive; font-weight:${el.bold?'700':'400'}">${layerPreviewText}</span>
       <span class="layer-del" data-id="${el.id}" title="删除">✕</span>
     `;
     li.addEventListener('click', (e) => {
@@ -362,7 +364,8 @@ function renderLayerPanel() {
 
 // ─── Font Preview Initialization ────────────────────────────────────────────────
 document.querySelectorAll('#fontFamily option').forEach(opt => {
-  opt.style.fontFamily = `"${opt.value}", cursive`;
+  const ff = opt.value.includes(',') ? opt.value : `"${opt.value}"`;
+  opt.style.fontFamily = `${ff}, cursive`;
 });
 
 // ─── Modal ────────────────────────────────────────────────────────────────────
@@ -374,7 +377,8 @@ function openAddModal(x, y) {
   state.selectedId = el.id;
   _editingId = el.id;
   textInput.value = '';
-  textInput.style.fontFamily = `"${el.fontFamily}", cursive`;
+  const ff = el.fontFamily.includes(',') ? el.fontFamily : `"${el.fontFamily}"`;
+  textInput.style.fontFamily = `${ff}, cursive`;
   textModal.style.display = 'flex';
   setTimeout(() => textInput.focus(), 50);
 }
@@ -384,7 +388,8 @@ function openEditModal(id) {
   if (!el) return;
   _editingId = id;
   textInput.value = el.text;
-  textInput.style.fontFamily = `"${el.fontFamily}", cursive`;
+  const ff = el.fontFamily.includes(',') ? el.fontFamily : `"${el.fontFamily}"`;
+  textInput.style.fontFamily = `${ff}, cursive`;
   textModal.style.display = 'flex';
   setTimeout(() => textInput.focus(), 50);
 }
@@ -457,7 +462,8 @@ async function exportImage() {
     }
 
     const fw = el.bold ? '700' : '400';
-    offCtx.font = `${fw} ${el.fontSize}px "${el.fontFamily}", cursive`;
+    const ff = el.fontFamily.includes(',') ? el.fontFamily : `"${el.fontFamily}"`;
+    offCtx.font = `${fw} ${el.fontSize}px ${ff}, cursive`;
     offCtx.textBaseline = 'top';
 
     const lineH = el.fontSize * 1.35;
