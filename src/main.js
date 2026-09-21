@@ -35,6 +35,16 @@ const strokeWidthEl = document.getElementById('strokeWidth');
 const bubbleStyleEl = document.getElementById('bubbleStyle');
 const exportFormatEl = document.getElementById('exportFormat');
 
+// color previews
+const fontColorPreview   = document.getElementById('fontColorPreview');
+const strokeColorPreview = document.getElementById('strokeColorPreview');
+
+// HUD
+const canvasHud   = document.getElementById('canvasHud');
+const zoomLabel   = document.getElementById('zoomLabel');
+const layerCount  = document.getElementById('layerCount');
+
+
 // ─── Utility ─────────────────────────────────────────────────────────────────
 function uid() { return nextId++; }
 
@@ -47,6 +57,12 @@ function saveHistory() {
   if (state.history.length > 50) state.history.shift();
   state.future = [];
 }
+
+function syncColorPreviews() {
+  if (fontColorPreview)   fontColorPreview.style.background   = fontColorEl.value;
+  if (strokeColorPreview) strokeColorPreview.style.background = strokeColorEl.value;
+}
+
 
 function undo() {
   if (!state.history.length) return;
@@ -79,6 +95,8 @@ function loadImage(file) {
       ctx.drawImage(img, 0, 0);
       canvasContainer.style.display = 'block';
       canvasHint.style.display = 'none';
+      if (canvasHud) canvasHud.style.display = 'flex';
+      syncColorPreviews();
       fitCanvasToView();
       renderAll();
     };
@@ -100,11 +118,11 @@ function fitCanvasToView() {
 function applyScale() {
   const s = state.scale;
   canvasContainer.style.transform = `scale(${s})`;
-  // When scaled down, container occupies less visual space but still full logical space.
-  // Use negative margin to collapse the extra layout space so wrapper keeps centering.
   const mw = canvas.width * (s - 1) / 2;
   const mh = canvas.height * (s - 1) / 2;
   canvasContainer.style.margin = `${mh}px ${mw}px`;
+  // sync HUD label
+  if (zoomLabel) zoomLabel.textContent = Math.round(s * 100) + '%';
 }
 
 
@@ -279,6 +297,8 @@ function deleteSelected() {
 // ─── Layer Panel ──────────────────────────────────────────────────────────────
 function renderLayerPanel() {
   layerList.innerHTML = '';
+  if (layerCount) layerCount.textContent = state.elements.length;
+
   [...state.elements].reverse().forEach(el => {
     const li = document.createElement('li');
     li.className = `layer-item${el.id === state.selectedId ? ' selected' : ''}`;
@@ -539,12 +559,13 @@ document.getElementById('btnAddText').addEventListener('click', () => {
 // ─── Toolbar events ───────────────────────────────────────────────────────────
 [fontFamilyEl, fontSizeEl, fontColorEl, strokeColorEl, strokeWidthEl, bubbleStyleEl]
   .forEach(el => el.addEventListener('change', applyStyleToSelected));
-fontColorEl.addEventListener('input', applyStyleToSelected);
-strokeColorEl.addEventListener('input', applyStyleToSelected);
+fontColorEl.addEventListener('input', () => { syncColorPreviews(); applyStyleToSelected(); });
+strokeColorEl.addEventListener('input', () => { syncColorPreviews(); applyStyleToSelected(); });
 
 // ─── Modal events ─────────────────────────────────────────────────────────────
 document.getElementById('btnModalOk').addEventListener('click', () => closeModal(true));
 document.getElementById('btnModalCancel').addEventListener('click', () => closeModal(false));
+document.getElementById('btnModalCancel2')?.addEventListener('click', () => closeModal(false));
 textInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter' && e.ctrlKey) closeModal(true);
   if (e.key === 'Escape') closeModal(false);
@@ -554,6 +575,19 @@ textInput.addEventListener('keydown', (e) => {
 document.getElementById('btnUndo').addEventListener('click', undo);
 document.getElementById('btnRedo').addEventListener('click', redo);
 document.getElementById('btnExport').addEventListener('click', exportImage);
+
+// ─── HUD zoom buttons ─────────────────────────────────────────────────────────
+document.getElementById('btnZoomIn')?.addEventListener('click', () => {
+  state.scale = Math.min(5, state.scale + 0.1);
+  applyScale();
+});
+document.getElementById('btnZoomOut')?.addEventListener('click', () => {
+  state.scale = Math.max(0.1, state.scale - 0.1);
+  applyScale();
+});
+document.getElementById('btnZoomFit')?.addEventListener('click', () => {
+  if (state.image) fitCanvasToView();
+});
 
 document.addEventListener('keydown', (e) => {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
