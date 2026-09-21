@@ -641,10 +641,13 @@ textLayer.addEventListener('click', (e) => {
   }
 });
 
-// ─── Add button ───────────────────────────────────────────────────────────────
+// ─── Top buttons ───────────────────────────────────────────────────────────────
 document.getElementById('btnAddText').addEventListener('click', () => {
   if (!state.image) return;
   openAddModal(canvas.width / 2 - 60, canvas.height / 2 - 30);
+});
+document.getElementById('btnChangeImage').addEventListener('click', () => {
+  fileInput.click();
 });
 
 // ─── Toolbar events ───────────────────────────────────────────────────────────
