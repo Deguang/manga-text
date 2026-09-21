@@ -422,6 +422,19 @@ kbd {
   display: flex;
   align-items: flex-start;
   justify-content: flex-start;
+  /* clickable when blank */
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+/* once image is loaded, restore normal cursor (set via JS class) */
+.canvas-area.has-image { cursor: default; }
+
+/* drag-over highlight */
+.canvas-area.drop-active {
+  background-color: rgba(233, 69, 96, 0.06);
+  outline: 2px dashed var(--c-primary);
+  outline-offset: -2px;
 }
 
 .canvas-wrapper {
@@ -461,10 +474,18 @@ kbd {
   gap: var(--sp-md);
 }
 .canvas-hint-inner p {
+  font-family: var(--ff-head);
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.3);
+  letter-spacing: -0.01em;
+}
+.canvas-hint-sub {
   font-family: var(--ff-mono);
-  font-size: 11px;
-  color: rgba(255,255,255,0.2);
+  font-size: 10px;
+  color: rgba(255,255,255,0.15);
   letter-spacing: 0.04em;
+  margin-top: -4px;
 }
 
 /* HUD */

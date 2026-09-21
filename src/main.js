@@ -95,6 +95,7 @@ function loadImage(file) {
       ctx.drawImage(img, 0, 0);
       canvasContainer.style.display = 'block';
       canvasHint.style.display = 'none';
+      document.getElementById('canvasArea').classList.add('has-image');
       if (canvasHud) canvasHud.style.display = 'flex';
       syncColorPreviews();
       fitCanvasToView();
@@ -612,12 +613,31 @@ uploadZone.addEventListener('drop', (e) => {
   loadImage(e.dataTransfer.files[0]);
 });
 
-// Drag image from desktop onto canvas area
-document.querySelector('.canvas-area').addEventListener('dragover', (e) => e.preventDefault());
-document.querySelector('.canvas-area').addEventListener('drop', (e) => {
+// ─── Canvas area: click/drag to load image when blank ────────────────────────
+const canvasArea = document.querySelector('.canvas-area');
+
+canvasArea.addEventListener('click', (e) => {
+  // Only when no image loaded, and click target is the blank area (not a control)
+  if (state.image) return;
+  if (e.target.closest('button, select, input, label')) return;
+  fileInput.click();
+});
+
+canvasArea.addEventListener('dragover', (e) => {
   e.preventDefault();
+  if (!state.image) canvasArea.classList.add('drop-active');
+});
+canvasArea.addEventListener('dragleave', (e) => {
+  if (!e.relatedTarget || !canvasArea.contains(e.relatedTarget)) {
+    canvasArea.classList.remove('drop-active');
+  }
+});
+canvasArea.addEventListener('drop', (e) => {
+  e.preventDefault();
+  canvasArea.classList.remove('drop-active');
   loadImage(e.dataTransfer.files[0]);
 });
+
 
 // ─── Ctrl+Scroll to zoom, normal scroll pans ─────────────────────────────────
 document.querySelector('.canvas-area').addEventListener('wheel', (e) => {
