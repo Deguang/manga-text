@@ -518,32 +518,30 @@ function starPoints(cx, cy, rx, ry, points) {
   return result;
 }
 
-// ─── Canvas click to add text ─────────────────────────────────────────────────
-// Use mousedown/mouseup pair to distinguish clean click vs drag-end
-let _canvasMouseDownPos = null;
-
-canvasContainer.addEventListener('mousedown', (e) => {
-  if (e.target !== canvasContainer && e.target !== canvas && e.target !== textLayer) return;
-  _canvasMouseDownPos = { x: e.clientX, y: e.clientY };
-});
+// ─── Canvas interaction ────────────────────────────────────────────────────────
+// Single click on blank canvas → deselect
+// Double click on blank canvas → add text at cursor position
+const _isCanvasBg = (t) => t === canvasContainer || t === canvas || t === textLayer;
 
 canvasContainer.addEventListener('click', (e) => {
-  if (e.target !== canvasContainer && e.target !== canvas && e.target !== textLayer) return;
-  if (!state.image) return;
-  // Only open if mouse didn't travel (i.e. not a drag release)
-  if (_canvasMouseDownPos) {
-    const dx = Math.abs(e.clientX - _canvasMouseDownPos.x);
-    const dy = Math.abs(e.clientY - _canvasMouseDownPos.y);
-    _canvasMouseDownPos = null;
-    if (dx > 4 || dy > 4) return; // was a drag, ignore
+  if (!_isCanvasBg(e.target)) return;
+  // single click: just deselect
+  if (state.selectedId !== null) {
+    state.selectedId = null;
+    renderAll();
   }
+});
+
+canvasContainer.addEventListener('dblclick', (e) => {
+  if (!_isCanvasBg(e.target)) return;
+  if (!state.image) return;
   const rect = canvasContainer.getBoundingClientRect();
   const x = (e.clientX - rect.left) / state.scale;
   const y = (e.clientY - rect.top) / state.scale;
   openAddModal(x, y);
 });
 
-textLayer.addEventListener('mousedown', (e) => {
+textLayer.addEventListener('click', (e) => {
   if (e.target === textLayer) {
     state.selectedId = null;
     renderAll();
