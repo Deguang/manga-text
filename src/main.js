@@ -20,7 +20,6 @@ const ctx = canvas.getContext('2d');
 const textLayer = document.getElementById('textLayer');
 const canvasContainer = document.getElementById('canvasContainer');
 const canvasHint = document.getElementById('canvasHint');
-const uploadZone = document.getElementById('uploadZone');
 const fileInput = document.getElementById('fileInput');
 const layerList = document.getElementById('layerList');
 const textModal = document.getElementById('textModal');
@@ -602,16 +601,6 @@ fileInput.addEventListener('change', () => {
   if (fileInput.files[0]) loadImage(fileInput.files[0]);
 });
 
-uploadZone.addEventListener('dragover', (e) => {
-  e.preventDefault();
-  uploadZone.classList.add('dragover');
-});
-uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
-uploadZone.addEventListener('drop', (e) => {
-  e.preventDefault();
-  uploadZone.classList.remove('dragover');
-  loadImage(e.dataTransfer.files[0]);
-});
 
 // ─── Canvas area: click/drag to load image when blank ────────────────────────
 const canvasArea = document.querySelector('.canvas-area');

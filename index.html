@@ -99,18 +99,8 @@
       <main class="main-area">
         <!-- 左侧边栏 -->
         <aside class="sidebar">
-          <!-- 上传区 -->
-          <div class="upload-zone" id="uploadZone">
-            <div class="upload-icon">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#e94560" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            </div>
-            <p class="upload-title">拖拽图片到此处</p>
-            <p class="upload-sub">支持 PNG / JPG / WebP</p>
-            <label class="btn-upload">
-              选择文件
-              <input type="file" id="fileInput" accept="image/*" hidden />
-            </label>
-          </div>
+          <!-- 隐藏的 file input，由画布区点击触发 -->
+          <input type="file" id="fileInput" accept="image/*" hidden />
 
           <!-- 图层列表 -->
           <div class="panel">
