@@ -138,7 +138,9 @@ function createElement(x, y) {
     strokeColor: strokeColorEl.value,
     strokeWidth: parseInt(strokeWidthEl.value) || 0,
     bubble: bubbleStyleEl.value,
-    width: null, // auto
+    bold: document.getElementById('btnBold').classList.contains('active'),
+    uppercase: document.getElementById('btnUppercase').classList.contains('active'),
+    width: null,
   };
   return el;
 }
@@ -171,13 +173,15 @@ function renderElement(el) {
 
   const textEl = document.createElement('div');
   textEl.className = 'text-display';
-  textEl.style.fontFamily = `'${el.fontFamily}', cursive`;
+  textEl.style.fontFamily = `'${el.fontFamily}', cursive, sans-serif`;
   textEl.style.fontSize = el.fontSize + 'px';
+  textEl.style.fontWeight = el.bold ? '700' : '400';
   textEl.style.color = el.color;
   textEl.style.whiteSpace = 'pre-wrap';
   textEl.style.lineHeight = '1.3';
   textEl.style.minWidth = '30px';
   textEl.style.minHeight = '1em';
+  textEl.style.textTransform = el.uppercase ? 'uppercase' : 'none';
   // stroke via text-shadow
   if (el.strokeWidth > 0) {
     const sw = el.strokeWidth;
@@ -273,7 +277,6 @@ function makeDraggable(div, el, handle) {
 
 function selectElement(id) {
   state.selectedId = id;
-  // update toolbar to reflect element style
   const el = state.elements.find(e => e.id === id);
   if (el) {
     fontFamilyEl.value = el.fontFamily;
@@ -282,6 +285,9 @@ function selectElement(id) {
     strokeColorEl.value = el.strokeColor;
     strokeWidthEl.value = el.strokeWidth;
     bubbleStyleEl.value = el.bubble;
+    document.getElementById('btnBold').classList.toggle('active', !!el.bold);
+    document.getElementById('btnUppercase').classList.toggle('active', !!el.uppercase);
+    syncColorPreviews();
   }
   renderAll();
 }
@@ -379,6 +385,8 @@ function applyStyleToSelected() {
   el.strokeColor = strokeColorEl.value;
   el.strokeWidth = parseInt(strokeWidthEl.value) || 0;
   el.bubble = bubbleStyleEl.value;
+  el.bold = document.getElementById('btnBold').classList.contains('active');
+  el.uppercase = document.getElementById('btnUppercase').classList.contains('active');
   renderAll();
 }
 
@@ -559,6 +567,16 @@ document.getElementById('btnAddText').addEventListener('click', () => {
   .forEach(el => el.addEventListener('change', applyStyleToSelected));
 fontColorEl.addEventListener('input', () => { syncColorPreviews(); applyStyleToSelected(); });
 strokeColorEl.addEventListener('input', () => { syncColorPreviews(); applyStyleToSelected(); });
+
+// Bold / ALL CAPS toggles
+document.getElementById('btnBold').addEventListener('click', () => {
+  document.getElementById('btnBold').classList.toggle('active');
+  applyStyleToSelected();
+});
+document.getElementById('btnUppercase').addEventListener('click', () => {
+  document.getElementById('btnUppercase').classList.toggle('active');
+  applyStyleToSelected();
+});
 
 // ─── Modal events ─────────────────────────────────────────────────────────────
 document.getElementById('btnModalOk').addEventListener('click', () => closeModal(true));

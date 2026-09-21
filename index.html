@@ -8,10 +8,10 @@
     <!-- Kuro Manga Studio design system fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Geist:wght@400;500&family=JetBrains+Mono:wght@400;500&family=Caveat:wght@400;500;600;700&family=Pangolin&family=Shadows+Into+Light&family=Permanent+Marker&family=Indie+Flower&family=Patrick+Hand&display=swap"
-      rel="stylesheet"
-    />
+    <!-- UI fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Geist:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <!-- Comic / handwriting fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:ital,wght@0,400;0,700;1,400&family=Shantell+Sans:ital,wght@0,400;0,600;1,400&family=Playpen+Sans:wght@400;700&family=Boogaloo&family=Fredoka:wght@400;600&family=Caveat:wght@400;600;700&family=Permanent+Marker&family=Indie+Flower&family=Patrick+Hand&family=Shadows+Into+Light&display=swap" rel="stylesheet" />
   </head>
   <body>
     <div id="app">
@@ -28,12 +28,23 @@
           <div class="tool-group">
             <label class="tool-label">FONT</label>
             <select id="fontFamily" class="tool-select font-preview-select">
-              <option value="Caveat">Caveat</option>
-              <option value="Permanent Marker">Permanent Marker</option>
-              <option value="Pangolin">Pangolin</option>
-              <option value="Shadows Into Light">Shadows Into Light</option>
-              <option value="Indie Flower">Indie Flower</option>
-              <option value="Patrick Hand">Patrick Hand</option>
+              <optgroup label="── 漫画对白 ──">
+                <option value="Comic Neue">Comic Neue（清晰对白）</option>
+                <option value="Bangers">Bangers（爆炸音效）</option>
+                <option value="Boogaloo">Boogaloo（轻松对话）</option>
+                <option value="Fredoka">Fredoka（圆润可爱）</option>
+              </optgroup>
+              <optgroup label="── 手写风格 ──">
+                <option value="Caveat">Caveat（自然手写）</option>
+                <option value="Shantell Sans">Shantell Sans（艺术手写）</option>
+                <option value="Playpen Sans">Playpen Sans（童趣手写）</option>
+                <option value="Indie Flower">Indie Flower（随性手写）</option>
+                <option value="Patrick Hand">Patrick Hand（工整手写）</option>
+                <option value="Shadows Into Light">Shadows Into Light（轻盈手写）</option>
+              </optgroup>
+              <optgroup label="── 强调风格 ──">
+                <option value="Permanent Marker">Permanent Marker（马克笔）</option>
+              </optgroup>
             </select>
           </div>
           <div class="toolbar-divider"></div>
@@ -42,6 +53,11 @@
             <label class="tool-label">SIZE</label>
             <input type="number" id="fontSize" value="32" min="8" max="200" class="tool-number" />
             <span class="tool-unit">px</span>
+          </div>
+          <!-- 字重 & 大写 -->
+          <div class="tool-group">
+            <button id="btnBold" class="btn-toggle" title="粗体">B</button>
+            <button id="btnUppercase" class="btn-toggle btn-toggle-mono" title="全大写（漫画惯例）">AA</button>
           </div>
           <div class="toolbar-divider"></div>
           <!-- 文字颜色 -->

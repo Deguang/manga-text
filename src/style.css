@@ -284,6 +284,28 @@ button { cursor: pointer; font-family: var(--ff-head); }
 }
 .btn-ghost:hover { border-color: var(--c-outline-h); color: var(--c-on-surface); }
 
+/* Toggle button (Bold / ALL CAPS) */
+.btn-toggle {
+  height: 28px;
+  min-width: 28px;
+  padding: 0 8px;
+  background: var(--c-surface-mid);
+  border: 1px solid var(--c-outline);
+  border-radius: var(--r);
+  color: var(--c-muted);
+  font-family: var(--ff-head);
+  font-size: 12px;
+  font-weight: 700;
+  transition: all 0.15s;
+}
+.btn-toggle:hover { border-color: var(--c-outline-h); color: var(--c-on-surface); }
+.btn-toggle.active {
+  background: rgba(233,69,96,0.18);
+  border-color: var(--c-primary);
+  color: var(--c-primary);
+}
+.btn-toggle-mono { font-family: var(--ff-mono); font-size: 10px; letter-spacing: 0.04em; }
+
 /* ════════════════════════════════════════
    MAIN
 ════════════════════════════════════════ */
