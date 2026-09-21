@@ -1,7 +1,7 @@
 import './style.css';
 
 // ─── State ───────────────────────────────────────────────────────────────────
-const state = {
+let state = {
   image: null,           // HTMLImageElement
   elements: [],          // TextElement[]
   selectedId: null,
@@ -653,6 +653,18 @@ document.getElementById('btnAddText').addEventListener('click', () => {
 });
 document.getElementById('btnChangeImage').addEventListener('click', () => {
   fileInput.click();
+});
+document.getElementById('btnReset').addEventListener('click', () => {
+  if (!state.image) return;
+  if (!confirm('确定要清空画布并重新开始吗？这会丢失当前所有的文字和图片。')) return;
+  state = { elements: [], image: null, selectedId: null, history: [], future: [], scale: 1, offsetX: 0, offsetY: 0 };
+  fileInput.value = '';
+  canvasContainer.style.display = 'none';
+  canvasHint.style.display = 'block';
+  document.getElementById('canvasArea').classList.remove('has-image');
+  if (canvasHud) canvasHud.style.display = 'none';
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  renderAll();
 });
 
 // ─── Toolbar events ───────────────────────────────────────────────────────────
