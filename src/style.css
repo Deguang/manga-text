@@ -747,3 +747,19 @@ kbd {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+/* Lucide Icons Adjustments */
+.lucide {
+  vertical-align: middle;
+}
+.layer-icon.lucide, .layer-del.lucide {
+  opacity: 0.7;
+}
+.layer-item.selected .layer-icon.lucide {
+  opacity: 1;
+  color: var(--c-primary);
+}
+.layer-del.lucide:hover {
+  opacity: 1;
+  color: #ff4444;
+}

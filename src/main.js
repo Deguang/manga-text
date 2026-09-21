@@ -331,6 +331,8 @@ function deleteSelected() {
   renderAll();
 }
 
+
+
 // ─── Layer Panel ──────────────────────────────────────────────────────────────
 function renderLayerPanel() {
   layerList.innerHTML = '';
@@ -343,13 +345,15 @@ function renderLayerPanel() {
     if (el.uppercase) layerPreviewText = layerPreviewText.toUpperCase();
     const ff = el.fontFamily.includes(',') ? el.fontFamily : `"${el.fontFamily}"`;
     li.innerHTML = `
-      <span class="layer-icon">T</span>
+      <i data-lucide="type" class="layer-icon" style="width:14px; height:14px;"></i>
       <span class="layer-text" style="font-family:${ff},cursive; font-weight:${el.bold?'700':'400'}">${layerPreviewText}</span>
-      <span class="layer-del" data-id="${el.id}" title="删除">✕</span>
+      <i data-lucide="trash-2" class="layer-del" data-id="${el.id}" title="删除" style="width:14px; height:14px; cursor:pointer;"></i>
     `;
     li.addEventListener('click', (e) => {
-      if (e.target.classList.contains('layer-del')) {
-        const id = parseInt(e.target.dataset.id);
+      // Because Lucide replaces the <i> with <svg>, we need to check closest or dataset
+      const isDel = e.target.closest('.layer-del');
+      if (isDel) {
+        const id = parseInt(isDel.dataset.id);
         saveHistory();
         state.elements = state.elements.filter(el => el.id !== id);
         if (state.selectedId === id) state.selectedId = null;
@@ -360,6 +364,7 @@ function renderLayerPanel() {
     });
     layerList.appendChild(li);
   });
+  if (window.lucide) window.lucide.createIcons();
 }
 
 // ─── Font Preview Initialization ────────────────────────────────────────────────
@@ -748,3 +753,8 @@ document.querySelector('.canvas-area').addEventListener('wheel', (e) => {
 window.addEventListener('resize', () => {
   if (state.image) fitCanvasToView();
 });
+
+// Initialize Lucide icons for static HTML
+if (window.lucide) {
+  lucide.createIcons();
+}
