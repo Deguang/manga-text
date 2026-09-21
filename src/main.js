@@ -275,7 +275,19 @@ function makeDraggable(div, el, handle) {
   });
 }
 
+function updateSelectionDOM() {
+  document.querySelectorAll('.text-element').forEach(div => {
+    if (parseInt(div.dataset.id) === state.selectedId) {
+      div.classList.add('selected');
+    } else {
+      div.classList.remove('selected');
+    }
+  });
+  renderLayerPanel();
+}
+
 function selectElement(id) {
+  if (state.selectedId === id) return;
   state.selectedId = id;
   const el = state.elements.find(e => e.id === id);
   if (el) {
@@ -289,7 +301,7 @@ function selectElement(id) {
     document.getElementById('btnUppercase').classList.toggle('active', !!el.uppercase);
     syncColorPreviews();
   }
-  renderAll();
+  updateSelectionDOM();
 }
 
 function deleteSelected() {
@@ -536,7 +548,7 @@ canvasContainer.addEventListener('click', (e) => {
   // single click: just deselect
   if (state.selectedId !== null) {
     state.selectedId = null;
-    renderAll();
+    updateSelectionDOM();
   }
 });
 
@@ -551,8 +563,10 @@ canvasContainer.addEventListener('dblclick', (e) => {
 
 textLayer.addEventListener('click', (e) => {
   if (e.target === textLayer) {
-    state.selectedId = null;
-    renderAll();
+    if (state.selectedId !== null) {
+      state.selectedId = null;
+      updateSelectionDOM();
+    }
   }
 });
 
