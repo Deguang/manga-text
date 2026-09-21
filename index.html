@@ -54,10 +54,17 @@
             <input type="number" id="fontSize" value="32" min="8" max="200" class="tool-number" />
             <span class="tool-unit">px</span>
           </div>
-          <!-- 字重 & 大写 -->
+          <!-- 字重 & 大写 & 效果 -->
           <div class="tool-group">
             <button id="btnBold" class="btn-toggle" title="粗体">B</button>
             <button id="btnUppercase" class="btn-toggle btn-toggle-mono" title="全大写（漫画惯例）">AA</button>
+            <div class="toolbar-divider-sm" style="width:1px;height:16px;background:var(--c-outline);margin:0 2px;"></div>
+            <button id="btnHighlight" class="btn-toggle" title="荧光笔高亮">
+              <span style="background: rgba(255,235,59,0.5); padding: 0 2px; border-radius: 2px;">H</span>
+            </button>
+            <button id="btnWavy" class="btn-toggle" title="波浪下划线">
+              <span style="text-decoration: underline wavy currentColor; text-underline-offset: 2px;">U</span>
+            </button>
           </div>
           <div class="toolbar-divider"></div>
           <!-- 文字颜色 -->

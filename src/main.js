@@ -140,6 +140,8 @@ function createElement(x, y) {
     bubble: bubbleStyleEl.value,
     bold: document.getElementById('btnBold').classList.contains('active'),
     uppercase: document.getElementById('btnUppercase').classList.contains('active'),
+    highlight: document.getElementById('btnHighlight').classList.contains('active'),
+    wavy: document.getElementById('btnWavy').classList.contains('active'),
     width: null,
   };
   return el;
@@ -173,7 +175,7 @@ function renderElement(el) {
 
   const textEl = document.createElement('div');
   textEl.className = 'text-display';
-  textEl.style.fontFamily = `'${el.fontFamily}', cursive, sans-serif`;
+  textEl.style.fontFamily = `"${el.fontFamily}", cursive, sans-serif`;
   textEl.style.fontSize = el.fontSize + 'px';
   textEl.style.fontWeight = el.bold ? '700' : '400';
   textEl.style.color = el.color;
@@ -182,6 +184,20 @@ function renderElement(el) {
   textEl.style.minWidth = '30px';
   textEl.style.minHeight = '1em';
   textEl.style.textTransform = el.uppercase ? 'uppercase' : 'none';
+
+  if (el.highlight) {
+    // block highlight looks better with box-decoration-break
+    textEl.style.background = 'rgba(255, 235, 59, 0.4)';
+    textEl.style.boxDecorationBreak = 'clone';
+    textEl.style.padding = '0 4px';
+    textEl.style.borderRadius = '2px';
+    textEl.style.display = 'inline-block';
+  }
+  if (el.wavy) {
+    textEl.style.textDecoration = `underline wavy ${el.color}`;
+    textEl.style.textUnderlineOffset = '4px';
+  }
+
   // stroke via text-shadow
   if (el.strokeWidth > 0) {
     const sw = el.strokeWidth;
@@ -299,6 +315,8 @@ function selectElement(id) {
     bubbleStyleEl.value = el.bubble;
     document.getElementById('btnBold').classList.toggle('active', !!el.bold);
     document.getElementById('btnUppercase').classList.toggle('active', !!el.uppercase);
+    document.getElementById('btnHighlight').classList.toggle('active', !!el.highlight);
+    document.getElementById('btnWavy').classList.toggle('active', !!el.wavy);
     syncColorPreviews();
   }
   updateSelectionDOM();
@@ -320,9 +338,11 @@ function renderLayerPanel() {
   [...state.elements].reverse().forEach(el => {
     const li = document.createElement('li');
     li.className = `layer-item${el.id === state.selectedId ? ' selected' : ''}`;
+    let layerPreviewText = el.text || '(空文字)';
+    if (el.uppercase) layerPreviewText = layerPreviewText.toUpperCase();
     li.innerHTML = `
       <span class="layer-icon">T</span>
-      <span class="layer-text">${el.text || '(空文字)'}</span>
+      <span class="layer-text" style="font-family:'${el.fontFamily}',cursive; font-weight:${el.bold?'700':'400'}">${layerPreviewText}</span>
       <span class="layer-del" data-id="${el.id}" title="删除">✕</span>
     `;
     li.addEventListener('click', (e) => {
@@ -340,6 +360,11 @@ function renderLayerPanel() {
   });
 }
 
+// ─── Font Preview Initialization ────────────────────────────────────────────────
+document.querySelectorAll('#fontFamily option').forEach(opt => {
+  opt.style.fontFamily = `"${opt.value}", cursive`;
+});
+
 // ─── Modal ────────────────────────────────────────────────────────────────────
 let _editingId = null;
 
@@ -349,6 +374,7 @@ function openAddModal(x, y) {
   state.selectedId = el.id;
   _editingId = el.id;
   textInput.value = '';
+  textInput.style.fontFamily = `"${el.fontFamily}", cursive`;
   textModal.style.display = 'flex';
   setTimeout(() => textInput.focus(), 50);
 }
@@ -358,6 +384,7 @@ function openEditModal(id) {
   if (!el) return;
   _editingId = id;
   textInput.value = el.text;
+  textInput.style.fontFamily = `"${el.fontFamily}", cursive`;
   textModal.style.display = 'flex';
   setTimeout(() => textInput.focus(), 50);
 }
@@ -399,6 +426,8 @@ function applyStyleToSelected() {
   el.bubble = bubbleStyleEl.value;
   el.bold = document.getElementById('btnBold').classList.contains('active');
   el.uppercase = document.getElementById('btnUppercase').classList.contains('active');
+  el.highlight = document.getElementById('btnHighlight').classList.contains('active');
+  el.wavy = document.getElementById('btnWavy').classList.contains('active');
   renderAll();
 }
 
@@ -422,26 +451,62 @@ async function exportImage() {
   for (const el of state.elements) {
     offCtx.save();
 
-    const lines = el.text.split('\n');
-    offCtx.font = `${el.fontSize}px '${el.fontFamily}', cursive`;
+    let displayLines = el.text.split('\n');
+    if (el.uppercase) {
+      displayLines = displayLines.map(l => l.toUpperCase());
+    }
+
+    const fw = el.bold ? '700' : '400';
+    offCtx.font = `${fw} ${el.fontSize}px "${el.fontFamily}", cursive`;
     offCtx.textBaseline = 'top';
 
     const lineH = el.fontSize * 1.35;
-    const padX = 12, padY = 8;
+    const padX = el.highlight ? 16 : 12; // slightly more padding if highlighted
+    const padY = el.highlight ? 10 : 8;
 
     // measure
     let maxW = 0;
-    lines.forEach(line => {
+    displayLines.forEach(line => {
       const m = offCtx.measureText(line);
       if (m.width > maxW) maxW = m.width;
     });
 
     const boxW = (el.width || maxW) + padX * 2;
-    const boxH = lines.length * lineH + padY * 2;
+    const boxH = displayLines.length * lineH + padY * 2;
     const bx = el.x, by = el.y;
 
     // Draw bubble background
     drawBubbleCanvas(offCtx, el.bubble, bx, by, boxW, boxH, el.fontSize);
+
+    const textX = bx + padX;
+    const textY = by + padY;
+
+    // highlight export
+    if (el.highlight) {
+      offCtx.fillStyle = 'rgba(255, 235, 59, 0.4)';
+      displayLines.forEach((line, i) => {
+        const m = offCtx.measureText(line);
+        offCtx.fillRect(textX - 2, textY + i * lineH - 2, m.width + 4, lineH);
+      });
+    }
+
+    // wavy export (simplified zigzag)
+    if (el.wavy) {
+      offCtx.strokeStyle = el.color;
+      offCtx.lineWidth = Math.max(1, el.fontSize / 15);
+      displayLines.forEach((line, i) => {
+        const m = offCtx.measureText(line);
+        const yBase = textY + i * lineH + el.fontSize * 1.1;
+        offCtx.beginPath();
+        let up = false;
+        for (let x = textX; x < textX + m.width; x += 4) {
+          if (x === textX) offCtx.moveTo(x, yBase);
+          else offCtx.lineTo(x, yBase + (up ? -2 : 2));
+          up = !up;
+        }
+        offCtx.stroke();
+      });
+    }
 
     // Draw text
     offCtx.fillStyle = el.color;
@@ -449,13 +514,13 @@ async function exportImage() {
       offCtx.strokeStyle = el.strokeColor;
       offCtx.lineWidth = el.strokeWidth * 2;
       offCtx.lineJoin = 'round';
+      displayLines.forEach((line, i) => {
+        offCtx.strokeText(line, textX, textY + i * lineH);
+      });
     }
-
-    lines.forEach((line, i) => {
-      const tx = bx + padX;
-      const ty = by + padY + i * lineH;
-      if (el.strokeWidth > 0) offCtx.strokeText(line, tx, ty);
-      offCtx.fillText(line, tx, ty);
+    
+    displayLines.forEach((line, i) => {
+      offCtx.fillText(line, textX, textY + i * lineH);
     });
 
     offCtx.restore();
@@ -582,14 +647,15 @@ document.getElementById('btnAddText').addEventListener('click', () => {
 fontColorEl.addEventListener('input', () => { syncColorPreviews(); applyStyleToSelected(); });
 strokeColorEl.addEventListener('input', () => { syncColorPreviews(); applyStyleToSelected(); });
 
-// Bold / ALL CAPS toggles
-document.getElementById('btnBold').addEventListener('click', () => {
-  document.getElementById('btnBold').classList.toggle('active');
-  applyStyleToSelected();
-});
-document.getElementById('btnUppercase').addEventListener('click', () => {
-  document.getElementById('btnUppercase').classList.toggle('active');
-  applyStyleToSelected();
+// Toggle buttons
+['btnBold', 'btnUppercase', 'btnHighlight', 'btnWavy'].forEach(id => {
+  const btn = document.getElementById(id);
+  if (btn) {
+    btn.addEventListener('click', () => {
+      btn.classList.toggle('active');
+      applyStyleToSelected();
+    });
+  }
 });
 
 // ─── Modal events ─────────────────────────────────────────────────────────────
