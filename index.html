@@ -1,13 +1,134 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>add-text</title>
+    <title>漫画文字编辑器</title>
+    <!-- 手绘风格字体 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Pangolin&family=Shadows+Into+Light&family=Permanent+Marker&family=Indie+Flower&family=Patrick+Hand&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <!-- 顶部工具栏 -->
+      <header class="toolbar">
+        <div class="toolbar-left">
+          <h1 class="app-title">🖊 漫画文字编辑器</h1>
+        </div>
+        <div class="toolbar-center">
+          <!-- 字体选择 -->
+          <div class="tool-group">
+            <label>字体</label>
+            <select id="fontFamily">
+              <option value="Caveat" style="font-family: Caveat">Caveat（默认手写）</option>
+              <option value="Permanent Marker" style="font-family: 'Permanent Marker'">Permanent Marker（粗犷）</option>
+              <option value="Pangolin" style="font-family: Pangolin">Pangolin（圆润）</option>
+              <option value="Shadows Into Light" style="font-family: 'Shadows Into Light'">Shadows Into Light（轻盈）</option>
+              <option value="Indie Flower" style="font-family: 'Indie Flower'">Indie Flower（可爱）</option>
+              <option value="Patrick Hand" style="font-family: 'Patrick Hand'">Patrick Hand（工整手写）</option>
+            </select>
+          </div>
+          <!-- 字号 -->
+          <div class="tool-group">
+            <label>字号</label>
+            <input type="number" id="fontSize" value="32" min="8" max="200" />
+          </div>
+          <!-- 颜色 -->
+          <div class="tool-group">
+            <label>颜色</label>
+            <input type="color" id="fontColor" value="#000000" />
+          </div>
+          <!-- 描边 -->
+          <div class="tool-group">
+            <label>描边</label>
+            <input type="color" id="strokeColor" value="#ffffff" />
+            <input type="number" id="strokeWidth" value="0" min="0" max="20" style="width:50px" />
+          </div>
+          <!-- 气泡样式 -->
+          <div class="tool-group">
+            <label>气泡</label>
+            <select id="bubbleStyle">
+              <option value="none">无气泡</option>
+              <option value="speech-right">💬 对话（右尾）</option>
+              <option value="speech-left">💬 对话（左尾）</option>
+              <option value="thought">💭 思考气泡</option>
+              <option value="shout">💥 爆炸气泡</option>
+              <option value="rect">⬜ 矩形框</option>
+            </select>
+          </div>
+        </div>
+        <div class="toolbar-right">
+          <button id="btnUndo" title="撤销 (Ctrl+Z)">↩ 撤销</button>
+          <button id="btnRedo" title="重做 (Ctrl+Y)">↪ 重做</button>
+          <button id="btnAddText" class="btn-primary">＋ 添加文字</button>
+          <button id="btnExport" class="btn-success">⬇ 导出</button>
+          <select id="exportFormat">
+            <option value="png">PNG</option>
+            <option value="jpg">JPG</option>
+          </select>
+        </div>
+      </header>
+
+      <!-- 主体区域 -->
+      <main class="main-area">
+        <!-- 左侧上传区 -->
+        <aside class="sidebar">
+          <div class="upload-zone" id="uploadZone">
+            <div class="upload-icon">🖼</div>
+            <p>拖拽图片到此处</p>
+            <p class="upload-sub">或者</p>
+            <label class="btn-upload">
+              点击选择图片
+              <input type="file" id="fileInput" accept="image/*" hidden />
+            </label>
+          </div>
+          <div class="layer-panel">
+            <h3>图层列表</h3>
+            <ul id="layerList"></ul>
+          </div>
+          <div class="tips-panel">
+            <h3>操作提示</h3>
+            <ul>
+              <li>🖱 拖动移动文字</li>
+              <li>⚙ 双击编辑文字</li>
+              <li>🔢 滚轮缩放画布</li>
+              <li>⌫ Delete 删除选中</li>
+              <li>↩ Ctrl+Z 撤销</li>
+            </ul>
+          </div>
+        </aside>
+
+        <!-- 画布区域 -->
+        <section class="canvas-area">
+          <div class="canvas-container" id="canvasContainer">
+            <canvas id="mainCanvas"></canvas>
+            <!-- 文字叠加层（DOM 方式，支持手绘字体预览）-->
+            <div id="textLayer"></div>
+          </div>
+          <div class="canvas-hint" id="canvasHint">
+            ← 请先在左侧上传漫画图片
+          </div>
+        </section>
+      </main>
+
+      <!-- 文字编辑弹窗 -->
+      <div class="modal-overlay" id="textModal" style="display:none">
+        <div class="modal">
+          <h2>编辑文字</h2>
+          <textarea id="textInput" placeholder="输入文字内容..." rows="4"></textarea>
+          <div class="modal-actions">
+            <button id="btnModalCancel">取消</button>
+            <button id="btnModalOk" class="btn-primary">确定</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
