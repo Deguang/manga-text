@@ -1,4 +1,4 @@
-/* ===== Kuro Manga Studio Design System ===== */
+/* ===== Manga Editor Pro V2 Design System ===== */
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Geist:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap');
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -6,25 +6,25 @@
 /* ── Tokens ── */
 :root {
   /* Surfaces */
-  --c-bg:           #0c0c1f;
-  --c-surface:      #111125;
-  --c-surface-low:  #1a1a2e;
-  --c-surface-mid:  #1e1e32;
-  --c-surface-high: #28283d;
-  --c-surface-top:  #333348;
+  --c-bg:           #14161B;
+  --c-surface:      #171920;
+  --c-surface-low:  #1A1D24;
+  --c-surface-mid:  #21242E;
+  --c-surface-high: #2C303E;
+  --c-surface-top:  #383D4D;
 
   /* Accent */
-  --c-primary:      #e94560;
-  --c-primary-h:    #ff5a79;
+  --c-primary:      #6366f1;
+  --c-primary-h:    #4f46e5;
   --c-success:      #10b981;
-  --c-success-h:    #0ea571;
+  --c-success-h:    #059669;
 
   /* Text */
-  --c-on-surface:   #e2e0fc;
-  --c-on-variant:   #e2bebf;
-  --c-muted:        #94a3b8;
-  --c-outline:      rgba(255,255,255,0.08);
-  --c-outline-h:    rgba(255,255,255,0.16);
+  --c-on-surface:   #F3F4F6;
+  --c-on-variant:   #D1D5DB;
+  --c-muted:        #9CA3AF;
+  --c-outline:      #2C2F3A;
+  --c-outline-h:    #374151;
 
   /* Typography */
   --ff-head: 'Space Grotesk', system-ui, sans-serif;
@@ -248,11 +248,11 @@ button { cursor: pointer; font-family: var(--ff-head); }
   font-weight: 600;
   white-space: nowrap;
   transition: background 0.15s, box-shadow 0.15s;
-  box-shadow: 0 0 0 0 rgba(233,69,96,0);
+  box-shadow: 0 0 0 0 rgba(99,102,241,0);
 }
 .btn-primary:hover {
   background: var(--c-primary-h);
-  box-shadow: 0 4px 16px rgba(233,69,96,0.35);
+  box-shadow: 0 4px 16px rgba(99,102,241,0.35);
 }
 .btn-primary:active { transform: scale(0.97); }
 
