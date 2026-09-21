@@ -96,7 +96,7 @@
             <ul>
               <li>🖱 拖动移动文字</li>
               <li>⚙ 双击编辑文字</li>
-              <li>🔢 滚轮缩放画布</li>
+              <li>🔢 Ctrl+滚轮缩放</li>
               <li>⌫ Delete 删除选中</li>
               <li>↩ Ctrl+Z 撤销</li>
             </ul>
@@ -105,10 +105,12 @@
 
         <!-- 画布区域 -->
         <section class="canvas-area">
-          <div class="canvas-container" id="canvasContainer">
-            <canvas id="mainCanvas"></canvas>
-            <!-- 文字叠加层（DOM 方式，支持手绘字体预览）-->
-            <div id="textLayer"></div>
+          <div class="canvas-wrapper" id="canvasWrapper">
+            <div class="canvas-container" id="canvasContainer">
+              <canvas id="mainCanvas"></canvas>
+              <!-- 文字叠加层（DOM 方式，支持手绘字体预览）-->
+              <div id="textLayer"></div>
+            </div>
           </div>
           <div class="canvas-hint" id="canvasHint">
             ← 请先在左侧上传漫画图片

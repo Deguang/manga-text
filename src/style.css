@@ -217,25 +217,40 @@ button:active { transform: scale(0.97); }
 /* ===== Canvas Area ===== */
 .canvas-area {
   flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  overflow: auto;
   background: #111;
-  overflow: hidden;
   position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
 }
 
 .canvas-hint {
   position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   color: var(--text-muted);
   font-size: 1rem;
   pointer-events: none;
+  white-space: nowrap;
+}
+
+/* flex wrapper centers the canvas inside the scrollable area */
+.canvas-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 100%;
+  min-height: 100%;
+  padding: 24px;
 }
 
 .canvas-container {
   position: relative;
   cursor: default;
-  transform-origin: top left;
+  transform-origin: center center;
+  flex-shrink: 0;
   display: none; /* shown after image load */
 }
 

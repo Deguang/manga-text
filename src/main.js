@@ -88,9 +88,9 @@ function loadImage(file) {
 }
 
 function fitCanvasToView() {
-  const area = canvasContainer.parentElement;
-  const aw = area.clientWidth - 40;
-  const ah = area.clientHeight - 40;
+  const area = canvasContainer.parentElement.parentElement; // canvas-area
+  const aw = area.clientWidth - 48;
+  const ah = area.clientHeight - 48;
   const scaleX = aw / canvas.width;
   const scaleY = ah / canvas.height;
   state.scale = Math.min(scaleX, scaleY, 1);
@@ -100,14 +100,13 @@ function fitCanvasToView() {
 function applyScale() {
   const s = state.scale;
   canvasContainer.style.transform = `scale(${s})`;
-  canvasContainer.style.width = canvas.width + 'px';
-  canvasContainer.style.height = canvas.height + 'px';
-  // center
-  const area = canvasContainer.parentElement;
-  const marginX = Math.max(0, (area.clientWidth - canvas.width * s) / 2);
-  const marginY = Math.max(0, (area.clientHeight - canvas.height * s) / 2);
-  canvasContainer.style.margin = `${marginY}px ${marginX}px`;
+  // When scaled down, container occupies less visual space but still full logical space.
+  // Use negative margin to collapse the extra layout space so wrapper keeps centering.
+  const mw = canvas.width * (s - 1) / 2;
+  const mh = canvas.height * (s - 1) / 2;
+  canvasContainer.style.margin = `${mh}px ${mw}px`;
 }
+
 
 // ─── Text Elements ────────────────────────────────────────────────────────────
 function createElement(x, y) {
@@ -240,7 +239,12 @@ function makeDraggable(div, el, handle) {
       div.style.top = el.y + 'px';
     };
     const onUp = () => {
-      if (moved) saveHistory();
+      if (moved) {
+        saveHistory();
+        // suppress the upcoming click event so canvas doesn't open add modal
+        const suppressClick = (e3) => { e3.stopPropagation(); };
+        div.addEventListener('click', suppressClick, { once: true, capture: true });
+      }
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseup', onUp);
     };
@@ -495,9 +499,24 @@ function starPoints(cx, cy, rx, ry, points) {
 }
 
 // ─── Canvas click to add text ─────────────────────────────────────────────────
+// Use mousedown/mouseup pair to distinguish clean click vs drag-end
+let _canvasMouseDownPos = null;
+
+canvasContainer.addEventListener('mousedown', (e) => {
+  if (e.target !== canvasContainer && e.target !== canvas && e.target !== textLayer) return;
+  _canvasMouseDownPos = { x: e.clientX, y: e.clientY };
+});
+
 canvasContainer.addEventListener('click', (e) => {
   if (e.target !== canvasContainer && e.target !== canvas && e.target !== textLayer) return;
   if (!state.image) return;
+  // Only open if mouse didn't travel (i.e. not a drag release)
+  if (_canvasMouseDownPos) {
+    const dx = Math.abs(e.clientX - _canvasMouseDownPos.x);
+    const dy = Math.abs(e.clientY - _canvasMouseDownPos.y);
+    _canvasMouseDownPos = null;
+    if (dx > 4 || dy > 4) return; // was a drag, ignore
+  }
   const rect = canvasContainer.getBoundingClientRect();
   const x = (e.clientX - rect.left) / state.scale;
   const y = (e.clientY - rect.top) / state.scale;
@@ -568,10 +587,11 @@ document.querySelector('.canvas-area').addEventListener('drop', (e) => {
   loadImage(e.dataTransfer.files[0]);
 });
 
-// ─── Scroll to zoom ───────────────────────────────────────────────────────────
+// ─── Ctrl+Scroll to zoom, normal scroll pans ─────────────────────────────────
 document.querySelector('.canvas-area').addEventListener('wheel', (e) => {
+  if (!e.ctrlKey && !e.metaKey) return; // normal scroll = pan, let it propagate
   e.preventDefault();
-  const delta = e.deltaY > 0 ? -0.05 : 0.05;
+  const delta = e.deltaY > 0 ? -0.08 : 0.08;
   state.scale = Math.max(0.1, Math.min(5, state.scale + delta));
   applyScale();
 }, { passive: false });
