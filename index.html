@@ -112,9 +112,32 @@
         <div class="modal-overlay" id="sigModal" style="display:none">
           <div class="modal">
             <div class="modal-header">
-              <h2 class="modal-title"><h2 class="modal-title" data-i18n="modal.signature.title">手写签名</h2>
+              <h2 class="modal-title" data-i18n="modal.signature.title">手写签名</h2>
               <button class="modal-close" id="btnSigCancel">✕</button>
             </div>
+            <div class="sig-tabs" style="display:flex; gap:8px; margin-bottom:16px;">
+              <button id="tabSigDraw" class="btn-ghost active" style="flex:1; border: 1px solid var(--c-primary); color: var(--c-primary);"><span data-i18n="sig.tab.draw">手绘</span></button>
+              <button id="tabSigText" class="btn-ghost" style="flex:1;"><span data-i18n="sig.tab.text">文字</span></button>
+              <button id="tabSigImg" class="btn-ghost" style="flex:1;"><span data-i18n="sig.tab.img">图片</span></button>
+            </div>
+            
+            <div id="sigTextControls" style="display:none; gap:8px; margin-bottom:12px; align-items:center;">
+              <input type="text" id="sigTextInput" placeholder="输入落款文字..." data-i18n-placeholder="sig.text.placeholder" style="flex:1; padding:6px 12px; border:1px solid var(--c-outline); border-radius:var(--r); background:var(--c-bg); color:var(--c-on-bg);" />
+              <select id="sigTextFont" class="tool-select" style="width:120px;">
+                <option value="'Zhi Mang Xing'">志莽行书</option>
+                <option value="'Ma Shan Zheng'">马善政毛笔</option>
+                <option value="'ZCOOL KuaiLe'">站酷快乐体</option>
+                <option value="'Xiaolai SC'">小赖字体</option>
+                <option value="'Yozai'">悠哉字体</option>
+                <option value="'Caveat'">Caveat (EN)</option>
+              </select>
+            </div>
+
+            <div id="sigImgControls" style="display:none; justify-content:center; margin-bottom:12px;">
+              <button id="btnSigUpload" class="btn-ghost" style="border:1px dashed var(--c-outline); width:100%;"><i data-lucide="image-plus" style="width:16px;height:16px;margin-right:8px;"></i><span data-i18n="sig.img.upload">选择图片</span></button>
+              <input type="file" id="sigFileInput" accept="image/*" hidden />
+            </div>
+
             <div class="sig-pad-wrap" style="background:#fff; border-radius: 8px; border: 1px solid var(--c-outline); overflow:hidden;">
               <canvas id="sigCanvas" width="400" height="200" style="display:block; cursor:crosshair; touch-action:none;"></canvas>
             </div>

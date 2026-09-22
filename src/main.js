@@ -807,6 +807,8 @@ window.addEventListener('pointercancel', () => { isDrawingSig = false; });
 
 document.getElementById('btnSigClear').addEventListener('click', () => {
   sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+  if (sigMode === 'text' && sigTextInput) sigTextInput.value = '';
+  if (sigMode === 'img' && sigFileInput) sigFileInput.value = '';
 });
 document.getElementById('btnSigCancel').addEventListener('click', () => {
   sigModal.style.display = 'none';
@@ -901,6 +903,94 @@ strokeColorEl.addEventListener('change', () => { applyStyleToSelected(false); })
     });
   }
 });
+
+
+// ─── Signature Tabs ─────────────────────────────────────────────────────────
+const tabSigDraw = document.getElementById('tabSigDraw');
+const tabSigText = document.getElementById('tabSigText');
+const tabSigImg = document.getElementById('tabSigImg');
+const sigTextControls = document.getElementById('sigTextControls');
+const sigImgControls = document.getElementById('sigImgControls');
+const sigTextInput = document.getElementById('sigTextInput');
+const sigTextFont = document.getElementById('sigTextFont');
+const sigFileInput = document.getElementById('sigFileInput');
+const btnSigUpload = document.getElementById('btnSigUpload');
+let sigMode = 'draw'; // draw | text | img
+
+function updateSigTabs(mode) {
+  sigMode = mode;
+  [tabSigDraw, tabSigText, tabSigImg].forEach(btn => {
+    btn.style.border = 'none';
+    btn.style.color = 'var(--c-on-bg)';
+  });
+  
+  if (mode === 'draw') {
+    tabSigDraw.style.border = '1px solid var(--c-primary)';
+    tabSigDraw.style.color = 'var(--c-primary)';
+    sigTextControls.style.display = 'none';
+    sigImgControls.style.display = 'none';
+    sigCanvas.style.pointerEvents = 'auto';
+  } else if (mode === 'text') {
+    tabSigText.style.border = '1px solid var(--c-primary)';
+    tabSigText.style.color = 'var(--c-primary)';
+    sigTextControls.style.display = 'flex';
+    sigImgControls.style.display = 'none';
+    sigCanvas.style.pointerEvents = 'none';
+    renderSigText();
+  } else {
+    tabSigImg.style.border = '1px solid var(--c-primary)';
+    tabSigImg.style.color = 'var(--c-primary)';
+    sigTextControls.style.display = 'none';
+    sigImgControls.style.display = 'flex';
+    sigCanvas.style.pointerEvents = 'none';
+  }
+}
+
+if (tabSigDraw) {
+  tabSigDraw.addEventListener('click', () => updateSigTabs('draw'));
+  tabSigText.addEventListener('click', () => updateSigTabs('text'));
+  tabSigImg.addEventListener('click', () => updateSigTabs('img'));
+
+  function renderSigText() {
+    if (sigMode !== 'text') return;
+    sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+    const text = sigTextInput.value.trim();
+    if (!text) return;
+    
+    sigCtx.fillStyle = '#111'; // Signatures are usually black/dark
+    // For dark mode, maybe white? Let's just use red or #111 based on theme
+    // A red stamp is classic for Chinese signatures
+    sigCtx.fillStyle = '#ef4444'; 
+    sigCtx.textAlign = 'center';
+    sigCtx.textBaseline = 'middle';
+    sigCtx.font = `64px ${sigTextFont.value}`;
+    sigCtx.fillText(text, sigCanvas.width/2, sigCanvas.height/2);
+  }
+
+  sigTextInput.addEventListener('input', renderSigText);
+  sigTextFont.addEventListener('change', renderSigText);
+
+  btnSigUpload.addEventListener('click', () => sigFileInput.click());
+  sigFileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onload = () => {
+        sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+        const scale = Math.min(sigCanvas.width / img.width, sigCanvas.height / img.height);
+        const w = img.width * scale;
+        const h = img.height * scale;
+        const x = (sigCanvas.width - w) / 2;
+        const y = (sigCanvas.height - h) / 2;
+        sigCtx.drawImage(img, x, y, w, h);
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
 
 // ─── Modal events ─────────────────────────────────────────────────────────────
 // ─── Undo / Redo ─────────────────────────────────────────────────────────────
@@ -1059,6 +1149,13 @@ if (btnLangToggle) {
           // If it has children like icons, preserve them? No, we wrapped text in spans!
           el.innerText = dict[key][lang];
         }
+      }
+    });
+    
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+      const key = el.getAttribute('data-i18n-placeholder');
+      if (dict[key] && dict[key][lang]) {
+        el.placeholder = dict[key][lang];
       }
     });
     btnLangToggle.innerText = lang === 'en' ? '中' : 'EN';

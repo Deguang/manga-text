@@ -186,5 +186,25 @@ export const dict = {
   "features.title": {
     "zh": "为什么选择 MangaText Pro？",
     "en": "Why MangaText Pro?"
+  },
+  "sig.tab.draw": {
+    "zh": "手绘",
+    "en": "Draw"
+  },
+  "sig.tab.text": {
+    "zh": "文字",
+    "en": "Text"
+  },
+  "sig.tab.img": {
+    "zh": "图片",
+    "en": "Image"
+  },
+  "sig.text.placeholder": {
+    "zh": "输入落款文字...",
+    "en": "Enter text..."
+  },
+  "sig.img.upload": {
+    "zh": "选择图片",
+    "en": "Choose Image"
   }
 };
