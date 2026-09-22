@@ -695,8 +695,16 @@ button { cursor: pointer; font-family: var(--ff-head); }
 .bubble-thought .text-content-wrap {
   background: #fff;
   border: 2.5px solid #111;
-  border-radius: 50%;
-  padding: 14px 20px;
+  border-radius: 40px;
+  padding: 20px 25px;
+}
+.bubble-thought .text-content-wrap::after {
+  content: '';
+  position: absolute;
+  bottom: -20px; left: 20px;
+  width: 10px; height: 10px;
+  background: #fff; border: 2.5px solid #111; border-radius: 50%;
+  box-shadow: -12px 15px 0 -3px #fff, -12px 15px 0 0 #111;
 }
 
 .bubble-shout .text-content-wrap {
@@ -798,8 +806,8 @@ button { cursor: pointer; font-family: var(--ff-head); }
 .bubble-oval .text-content-wrap {
   background: #fff;
   border: 2.5px solid #111;
-  border-radius: 50% / 50%;
-  padding: 18px 26px;
+  border-radius: 50%;
+  padding: 24px 30px;
 }
 
 .bubble-whisper .text-content-wrap {
@@ -812,7 +820,7 @@ button { cursor: pointer; font-family: var(--ff-head); }
 .bubble-burst .text-content-wrap {
   background: #fff;
   clip-path: polygon(50% 0%, 61% 15%, 85% 5%, 75% 25%, 100% 40%, 80% 55%, 95% 85%, 65% 80%, 50% 100%, 35% 80%, 5% 85%, 20% 55%, 0% 40%, 25% 25%, 15% 5%, 39% 15%);
-  padding: 24px 30px;
+  padding: 35px 45px;
   /* Filter drop-shadow acts like a border for clip-path */
   filter: drop-shadow(0px 0px 1px #111) drop-shadow(0px 0px 1px #111) drop-shadow(0px 0px 1px #111);
 }

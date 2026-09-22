@@ -22,8 +22,6 @@ const canvasContainer = document.getElementById('canvasContainer');
 const canvasHint = document.getElementById('canvasHint');
 const fileInput = document.getElementById('fileInput');
 const layerList = document.getElementById('layerList');
-const textModal = document.getElementById('textModal');
-const textInput = document.getElementById('textInput');
 
 // toolbar controls
 const fontFamilyEl = document.getElementById('fontFamily');
@@ -611,7 +609,6 @@ function drawBubbleCanvas(ctx, bubble, x, y, w, h, fontSize) {
     roundRect(ctx, x, y, w, h, 16);
     ctx.fill();
     ctx.stroke();
-    // tail
     ctx.beginPath();
     const tailX = bubble === 'speech-right' ? x + w - 24 : x + 24;
     ctx.moveTo(tailX - 10, y + h);
@@ -622,17 +619,52 @@ function drawBubbleCanvas(ctx, bubble, x, y, w, h, fontSize) {
     ctx.fill();
     ctx.strokeStyle = '#000';
     ctx.stroke();
-  } else if (bubble === 'thought' || bubble === 'oval') {
+  } else if (bubble === 'oval') {
     ctx.fillStyle = '#fff';
     ctx.beginPath();
-    ctx.ellipse(x + w / 2, y + h / 2, w / 2 + (bubble==='oval'?20:8), h / 2 + (bubble==='oval'?20:8), 0, 0, Math.PI * 2);
+    ctx.ellipse(x + w / 2, y + h / 2, w / 2 + 20, h / 2 + 20, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
+  } else if (bubble === 'thought') {
+    ctx.fillStyle = '#fff';
+    const cx = x + w/2;
+    const cy = y + h/2;
+    const numBumps = 8;
+    const step = Math.PI * 2 / numBumps;
+    ctx.beginPath();
+    for (let i = 0; i <= numBumps; i++) {
+      const angle = i * step;
+      const vx = cx + (w/2 + 5) * Math.cos(angle);
+      const vy = cy + (h/2 + 5) * Math.sin(angle);
+      if (i === 0) ctx.moveTo(vx, vy);
+      else {
+        const cpAngle = (i - 0.5) * step;
+        const cpx = cx + (w/2 + 35) * Math.cos(cpAngle);
+        const cpy = cy + (h/2 + 35) * Math.sin(cpAngle);
+        ctx.quadraticCurveTo(cpx, cpy, vx, vy);
+      }
+    }
+    ctx.fill();
+    ctx.stroke();
+    // Thought trail
+    ctx.beginPath(); ctx.arc(x + 20, y + h + 15, 6, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.arc(x + 5, y + h + 25, 3, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+
   } else if (bubble === 'shout') {
     ctx.fillStyle = '#ffe566';
-    const pts = starPoints(x + w / 2, y + h / 2, w / 2 + 12, h / 2 + 12, 14);
     ctx.beginPath();
-    pts.forEach((p, i) => i === 0 ? ctx.moveTo(p[0], p[1]) : ctx.lineTo(p[0], p[1]));
+    const cx = x + w / 2;
+    const cy = y + h / 2;
+    for (let i = 0; i < 28; i++) {
+      const isOuter = i % 2 === 0;
+      const rx = w/2 + (isOuter ? 20 : 5);
+      const ry = h/2 + (isOuter ? 20 : 5);
+      const angle = i * (Math.PI / 14);
+      const px = cx + rx * Math.cos(angle);
+      const py = cy + ry * Math.sin(angle);
+      if (i === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
@@ -640,10 +672,20 @@ function drawBubbleCanvas(ctx, bubble, x, y, w, h, fontSize) {
     ctx.fillStyle = '#fff';
     ctx.shadowColor = '#111';
     ctx.shadowBlur = 2;
-    // Spiky random burst
-    const pts = starPoints(x + w / 2, y + h / 2, w / 2 + 30, h / 2 + 30, 20);
     ctx.beginPath();
-    pts.forEach((p, i) => i === 0 ? ctx.moveTo(p[0], p[1]) : ctx.lineTo(p[0], p[1]));
+    const cx = x + w / 2;
+    const cy = y + h / 2;
+    for (let i = 0; i < 40; i++) {
+      const isOuter = i % 2 === 0;
+      // Guarantee inner radius contains the text, outer radius shoots out
+      const rx = w/2 + (isOuter ? 45 : 15);
+      const ry = h/2 + (isOuter ? 45 : 15);
+      const angle = i * (Math.PI / 20) + (isOuter ? 0 : 0.05); // slight skew
+      const px = cx + rx * Math.cos(angle);
+      const py = cy + ry * Math.sin(angle);
+      if (i === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
     ctx.closePath();
     ctx.fill();
   } else if (bubble === 'whisper') {
@@ -814,14 +856,6 @@ strokeColorEl.addEventListener('input', () => { syncColorPreviews(); applyStyleT
 });
 
 // ─── Modal events ─────────────────────────────────────────────────────────────
-document.getElementById('btnModalOk').addEventListener('click', () => closeModal(true));
-document.getElementById('btnModalCancel').addEventListener('click', () => closeModal(false));
-document.getElementById('btnModalCancel2')?.addEventListener('click', () => closeModal(false));
-textInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter' && e.ctrlKey) closeModal(true);
-  if (e.key === 'Escape') closeModal(false);
-});
-
 // ─── Undo / Redo ─────────────────────────────────────────────────────────────
 document.getElementById('btnUndo').addEventListener('click', undo);
 document.getElementById('btnRedo').addEventListener('click', redo);
