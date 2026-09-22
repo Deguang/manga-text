@@ -99,6 +99,9 @@ function loadImage(file) {
       syncColorPreviews();
       fitCanvasToView();
       renderAll();
+      if (!localStorage.getItem('hasSeenGuide')) {
+        document.getElementById('guideModal').style.display = 'flex';
+      }
     };
     img.src = e.target.result;
   };
@@ -1182,4 +1185,22 @@ if (btnNavStart) {
     e.preventDefault();
     fileInput.click();
   });
+}
+
+// ─── Guide Modal ──────────────────────────────────────────────────────────────
+const guideModal = document.getElementById('guideModal');
+const btnHelp = document.getElementById('btnHelp');
+const btnGuideClose = document.getElementById('btnGuideClose');
+const btnGuideOk = document.getElementById('btnGuideOk');
+
+if (btnHelp && guideModal) {
+  btnHelp.addEventListener('click', () => {
+    guideModal.style.display = 'flex';
+  });
+  const closeGuide = () => {
+    guideModal.style.display = 'none';
+    localStorage.setItem('hasSeenGuide', 'true');
+  };
+  btnGuideClose.addEventListener('click', closeGuide);
+  btnGuideOk.addEventListener('click', closeGuide);
 }

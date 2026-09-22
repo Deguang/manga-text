@@ -206,5 +206,37 @@ export const dict = {
   "sig.img.upload": {
     "zh": "选择图片",
     "en": "Choose Image"
+  },
+  "guide.title": {
+    "zh": "💡 操作指南",
+    "en": "💡 Quick Guide"
+  },
+  "guide.edit.title": {
+    "zh": "双击编辑文字",
+    "en": "Double-Click to Edit"
+  },
+  "guide.edit.desc": {
+    "zh": "双击画布上的任意气泡，即可直接在原位修改文字内容。",
+    "en": "Double-click any bubble on the canvas to edit its text inline."
+  },
+  "guide.move.title": {
+    "zh": "拖拽与缩放",
+    "en": "Drag & Resize"
+  },
+  "guide.move.desc": {
+    "zh": "按住气泡主体可自由拖动，按住右下角可调整气泡宽度，文字会自动换行。",
+    "en": "Drag the bubble body to move it, or drag the bottom-right corner to resize. Text wraps automatically."
+  },
+  "guide.style.title": {
+    "zh": "百变样式",
+    "en": "Powerful Styling"
+  },
+  "guide.style.desc": {
+    "zh": "选中文字后，在左侧属性面板可随意切换数十种字体、颜色与个性化气泡框。",
+    "en": "Select a bubble to change its font, color, and bubble shape from the properties panel."
+  },
+  "guide.btn.ok": {
+    "zh": "我知道了，开始创作",
+    "en": "Got it, let's create!"
   }
 };
