@@ -1041,11 +1041,8 @@ if (btnThemeToggle) {
   });
   
   function updateThemeIcon(theme) {
-    const icon = btnThemeToggle.querySelector('i');
-    if (icon) {
-      icon.setAttribute('data-lucide', theme === 'dark' ? 'sun' : 'moon');
-      if (typeof renderIcons === "function") renderIcons();
-    }
+    btnThemeToggle.innerHTML = `<i data-lucide="${theme === 'dark' ? 'sun' : 'moon'}" style="width:18px;height:18px;"></i>`;
+    if (typeof renderIcons === "function") renderIcons();
   }
   // init
   updateThemeIcon(document.documentElement.getAttribute('data-theme') || 'light');

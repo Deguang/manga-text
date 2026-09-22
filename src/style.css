@@ -591,13 +591,13 @@ button { cursor: pointer; font-family: var(--ff-head); }
   font-family: var(--ff-head);
   font-size: 14px;
   font-weight: 600;
-  color: rgba(255,255,255,0.3);
+  color: var(--c-muted); opacity: 0.6;
   letter-spacing: -0.01em;
 }
 .canvas-hint-sub {
   font-family: var(--ff-mono);
   font-size: 10px;
-  color: rgba(255,255,255,0.15);
+  color: var(--c-muted); opacity: 0.4;
   letter-spacing: 0.04em;
   margin-top: -4px;
 }
