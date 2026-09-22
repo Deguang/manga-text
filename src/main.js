@@ -223,20 +223,80 @@ function renderElement(el) {
   // ── drag to move ──
   makeDraggable(div, el, handle);
 
-  // ── double-click to edit ──
-  div.addEventListener('dblclick', () => openEditModal(el.id));
+  // ── double-click to edit (inline) ──
+  div.addEventListener('dblclick', (e) => {
+    e.stopPropagation();
+    startInlineEdit(el.id, textEl, div, el);
+  });
 
   // ── click to select ──
   div.addEventListener('mousedown', (e) => {
+    if (div.classList.contains('is-editing')) return;
     if (e.target === handle) return;
     e.stopPropagation();
     selectElement(el.id);
   });
 }
 
+function startInlineEdit(id, textEl, div, el) {
+  selectElement(id);
+  div.classList.add('is-editing');
+  textEl.contentEditable = "true";
+  textEl.style.outline = "none";
+  textEl.style.cursor = "text";
+  textEl.focus();
+
+  // Select all text
+  const selection = window.getSelection();
+  const range = document.createRange();
+  range.selectNodeContents(textEl);
+  selection.removeAllRanges();
+  selection.addRange(range);
+
+  const finishEdit = () => {
+    if (textEl.contentEditable !== "true") return;
+    textEl.contentEditable = "false";
+    div.classList.remove('is-editing');
+    textEl.style.cursor = "";
+    
+    // Clean up empty lines or save
+    const newText = textEl.innerText.replace(/\n$/, '') || ' ';
+    if (newText !== el.text) {
+      saveHistory();
+      el.text = newText;
+      renderAll();
+    } else {
+      textEl.innerText = el.text; // revert any weird DOM artifacts
+    }
+  };
+
+  const outsideClick = (e) => {
+    if (!div.contains(e.target)) {
+      finishEdit();
+      document.removeEventListener('mousedown', outsideClick);
+    }
+  };
+  // Wait a tick so the dblclick doesn't instantly trigger outsideClick if it bubbled
+  setTimeout(() => {
+    document.addEventListener('mousedown', outsideClick);
+  }, 10);
+
+  const onKeyDown = (e) => {
+    // Esc or Ctrl+Enter to finish
+    if (e.key === 'Escape' || (e.key === 'Enter' && (e.ctrlKey || e.metaKey))) {
+      e.preventDefault();
+      finishEdit();
+      textEl.removeEventListener('keydown', onKeyDown);
+      document.removeEventListener('mousedown', outsideClick);
+    }
+  };
+  textEl.addEventListener('keydown', onKeyDown);
+}
+
 function makeDraggable(div, el, handle) {
   // resize
   handle.addEventListener('mousedown', (e) => {
+    if (div.classList.contains('is-editing')) return;
     e.stopPropagation();
     e.preventDefault();
     const startX = e.clientX;
@@ -258,6 +318,7 @@ function makeDraggable(div, el, handle) {
 
   // drag
   div.addEventListener('mousedown', (e) => {
+    if (div.classList.contains('is-editing')) return; // Allow text selection!
     if (e.target === handle) return;
     e.preventDefault();
     selectElement(el.id);
@@ -373,54 +434,22 @@ document.querySelectorAll('#fontFamily option').forEach(opt => {
   opt.style.fontFamily = `${ff}, cursive`;
 });
 
-// ─── Modal ────────────────────────────────────────────────────────────────────
-let _editingId = null;
-
-function openAddModal(x, y) {
+// ─── Inline Adding ─────────────────────────────────────────────────────────────────
+function addTextInline(x, y) {
   const el = createElement(x, y);
+  el.text = ''; // Start empty
   state.elements.push(el);
   state.selectedId = el.id;
-  _editingId = el.id;
-  textInput.value = '';
-  const ff = el.fontFamily.includes(',') ? el.fontFamily : `"${el.fontFamily}"`;
-  textInput.style.fontFamily = `${ff}, cursive`;
-  textModal.style.display = 'flex';
-  setTimeout(() => textInput.focus(), 50);
-}
-
-function openEditModal(id) {
-  const el = state.elements.find(e => e.id === id);
-  if (!el) return;
-  _editingId = id;
-  textInput.value = el.text;
-  const ff = el.fontFamily.includes(',') ? el.fontFamily : `"${el.fontFamily}"`;
-  textInput.style.fontFamily = `${ff}, cursive`;
-  textModal.style.display = 'flex';
-  setTimeout(() => textInput.focus(), 50);
-}
-
-function closeModal(save) {
-  textModal.style.display = 'none';
-  if (!_editingId) return;
-
-  const el = state.elements.find(e => e.id === _editingId);
-  if (save && el) {
-    const newText = textInput.value.trim();
-    if (!newText && !el.text) {
-      // never had text, remove
-      state.elements = state.elements.filter(e => e.id !== _editingId);
-      state.selectedId = null;
-    } else {
-      saveHistory();
-      el.text = textInput.value;
+  renderAll(); // Renders the DOM node
+  
+  // Find it and start editing
+  const div = document.querySelector(`.text-element[data-id="${el.id}"]`);
+  if (div) {
+    const textEl = div.querySelector('.text-display');
+    if (textEl) {
+      startInlineEdit(el.id, textEl, div, el);
     }
-  } else if (!save && el && !el.text) {
-    // cancelled on brand new element
-    state.elements = state.elements.filter(e => e.id !== _editingId);
-    state.selectedId = null;
   }
-  _editingId = null;
-  renderAll();
 }
 
 // ─── Toolbar style changes apply to selected ──────────────────────────────────
@@ -634,7 +663,7 @@ canvasContainer.addEventListener('dblclick', (e) => {
   const rect = canvasContainer.getBoundingClientRect();
   const x = (e.clientX - rect.left) / state.scale;
   const y = (e.clientY - rect.top) / state.scale;
-  openAddModal(x, y);
+  addTextInline(x, y);
 });
 
 textLayer.addEventListener('click', (e) => {
@@ -649,7 +678,7 @@ textLayer.addEventListener('click', (e) => {
 // ─── Top buttons ───────────────────────────────────────────────────────────────
 document.getElementById('btnAddText').addEventListener('click', () => {
   if (!state.image) return;
-  openAddModal(canvas.width / 2 - 60, canvas.height / 2 - 30);
+  addTextInline(canvas.width / 2 - 60, canvas.height / 2 - 30);
 });
 document.getElementById('btnChangeImage').addEventListener('click', () => {
   fileInput.click();
