@@ -1078,3 +1078,11 @@ if (btnLangToggle) {
   // init
   applyLang(document.documentElement.getAttribute('lang') || 'zh');
 }
+
+const btnNavStart = document.getElementById('btnNavStart');
+if (btnNavStart) {
+  btnNavStart.addEventListener('click', (e) => {
+    e.preventDefault();
+    fileInput.click();
+  });
+}
