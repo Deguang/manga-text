@@ -35,6 +35,10 @@
         </div>
 
         <div class="toolbar-right">
+          <button id="btnSignature" class="btn-ghost" title="手写落款" style="color: #10b981;">
+            <i data-lucide="pen-tool" style="width:16px;height:16px;margin-right:6px;vertical-align:-3px;"></i>签名
+          </button>
+          <div class="toolbar-divider" style="margin: 0 8px;"></div>
           <button id="btnReset" class="btn-ghost" title="清空全部内容并重新开始" style="color: #ef4444;">
             <i data-lucide="trash" style="width:16px;height:16px;margin-right:6px;vertical-align:-3px;"></i>清空重做
           </button>
@@ -61,6 +65,23 @@
           </select>
         </div>
       </header>
+
+      <!-- 签名绘制弹窗 -->
+      <div class="modal-overlay" id="sigModal" style="display:none">
+        <div class="modal">
+          <div class="modal-header">
+            <h2 class="modal-title">手写签名</h2>
+            <button class="modal-close" id="btnSigCancel">✕</button>
+          </div>
+          <div class="sig-pad-wrap" style="background:#fff; border-radius: 8px; border: 1px solid var(--c-outline); overflow:hidden;">
+            <canvas id="sigCanvas" width="400" height="200" style="display:block; cursor:crosshair; touch-action:none;"></canvas>
+          </div>
+          <div class="modal-actions" style="margin-top: 16px;">
+            <button id="btnSigClear" class="btn-ghost">清除重画</button>
+            <button id="btnSigOk" class="btn-primary">保存落款</button>
+          </div>
+        </div>
+      </div>
 
       <!-- 主体区域 -->
       <main class="main-area">
@@ -223,12 +244,16 @@
               <div class="prop-row">
                 <label class="prop-label">形状</label>
                 <select id="bubbleStyle" class="tool-select" style="flex:1; width: 100%;">
-                  <option value="none">无气泡</option>
+                  <option value="none">无背景</option>
+                  <option value="oval">椭圆对话</option>
                   <option value="speech-right">对话（右尾）</option>
                   <option value="speech-left">对话（左尾）</option>
                   <option value="thought">思考气泡</option>
-                  <option value="shout">爆炸气泡</option>
-                  <option value="rect">旁白框</option>
+                  <option value="whisper">悄悄话（虚线）</option>
+                  <option value="shout">大声喊（折角）</option>
+                  <option value="burst">爆炸特效（张扬）</option>
+                  <option value="rect">旁白框（方正）</option>
+                  <option value="caption">字幕黑底（无边）</option>
                 </select>
               </div>
 

@@ -173,49 +173,59 @@ function renderElement(el) {
   const wrap = document.createElement('div');
   wrap.className = 'text-content-wrap';
 
-  const textEl = document.createElement('div');
-  textEl.className = 'text-display';
-  const ff = el.fontFamily.includes(',') ? el.fontFamily : `"${el.fontFamily}"`;
-  textEl.style.fontFamily = `${ff}, cursive, sans-serif`;
-  textEl.style.fontSize = el.fontSize + 'px';
-  textEl.style.fontWeight = el.bold ? '700' : '400';
-  textEl.style.color = el.color;
-  textEl.style.whiteSpace = 'pre-wrap';
-  textEl.style.lineHeight = '1.3';
-  textEl.style.minWidth = '30px';
-  textEl.style.minHeight = '1em';
-  textEl.style.textTransform = el.uppercase ? 'uppercase' : 'none';
+  let textEl = null;
 
-  if (el.highlight) {
-    // block highlight looks better with box-decoration-break
-    textEl.style.background = 'rgba(255, 235, 59, 0.4)';
-    textEl.style.boxDecorationBreak = 'clone';
-    textEl.style.padding = '0 4px';
-    textEl.style.borderRadius = '2px';
-    textEl.style.display = 'inline-block';
-  }
-  if (el.wavy) {
-    textEl.style.textDecoration = `underline wavy ${el.color}`;
-    textEl.style.textUnderlineOffset = '4px';
-  }
+  if (el.type === 'signature') {
+    const img = document.createElement('img');
+    img.src = el.src;
+    img.style.width = '100%';
+    img.style.display = 'block';
+    img.style.pointerEvents = 'none'; // so wrapper handles drag
+    wrap.appendChild(img);
+    // Signatures maintain a 2:1 aspect ratio based on width
+    if (!el.width) el.width = 200;
+  } else {
+    textEl = document.createElement('div');
+    textEl.className = 'text-display';
+    const ff = el.fontFamily.includes(',') ? el.fontFamily : `"${el.fontFamily}"`;
+    textEl.style.fontFamily = `${ff}, cursive, sans-serif`;
+    textEl.style.fontSize = el.fontSize + 'px';
+    textEl.style.fontWeight = el.bold ? '700' : '400';
+    textEl.style.color = el.color;
+    textEl.style.whiteSpace = 'pre-wrap';
+    textEl.style.lineHeight = '1.3';
+    textEl.style.minWidth = '30px';
+    textEl.style.minHeight = '1em';
+    textEl.style.textTransform = el.uppercase ? 'uppercase' : 'none';
 
-  // stroke via text-shadow
-  if (el.strokeWidth > 0) {
-    const sw = el.strokeWidth;
-    const sc = el.strokeColor;
-    textEl.style.textShadow = `
-      -${sw}px -${sw}px 0 ${sc},
-       ${sw}px -${sw}px 0 ${sc},
-      -${sw}px  ${sw}px 0 ${sc},
-       ${sw}px  ${sw}px 0 ${sc}`;
+    if (el.highlight) {
+      textEl.style.background = 'rgba(255, 235, 59, 0.4)';
+      textEl.style.boxDecorationBreak = 'clone';
+      textEl.style.padding = '0 4px';
+      textEl.style.borderRadius = '2px';
+      textEl.style.display = 'inline-block';
+    }
+    if (el.wavy) {
+      textEl.style.textDecoration = `underline wavy ${el.color}`;
+      textEl.style.textUnderlineOffset = '4px';
+    }
+
+    if (el.strokeWidth > 0) {
+      const sw = el.strokeWidth;
+      const sc = el.strokeColor;
+      textEl.style.textShadow = `
+        -${sw}px -${sw}px 0 ${sc},
+         ${sw}px -${sw}px 0 ${sc},
+        -${sw}px  ${sw}px 0 ${sc},
+         ${sw}px  ${sw}px 0 ${sc}`;
+    }
+    textEl.textContent = el.text;
+    wrap.appendChild(textEl);
   }
-  textEl.textContent = el.text;
 
   // resize handle
   const handle = document.createElement('div');
   handle.className = 'resize-handle';
-
-  wrap.appendChild(textEl);
   wrap.appendChild(handle);
   div.appendChild(wrap);
   textLayer.appendChild(div);
@@ -223,11 +233,13 @@ function renderElement(el) {
   // ── drag to move ──
   makeDraggable(div, el, handle);
 
-  // ── double-click to edit (inline) ──
-  div.addEventListener('dblclick', (e) => {
-    e.stopPropagation();
-    startInlineEdit(el.id, textEl, div, el);
-  });
+  if (textEl) {
+    // ── double-click to edit (inline) ──
+    div.addEventListener('dblclick', (e) => {
+      e.stopPropagation();
+      startInlineEdit(el.id, textEl, div, el);
+    });
+  }
 
   // ── click to select ──
   div.addEventListener('mousedown', (e) => {
@@ -490,6 +502,16 @@ async function exportImage() {
   for (const el of state.elements) {
     offCtx.save();
 
+    if (el.type === 'signature') {
+      const img = new Image();
+      img.src = el.src;
+      await new Promise(r => { img.onload = r; });
+      // Width is el.width, Height is el.width * 0.5 (2:1 aspect ratio of signature canvas)
+      offCtx.drawImage(img, el.x, el.y, el.width || 200, (el.width || 200) * 0.5);
+      offCtx.restore();
+      continue;
+    }
+
     let displayLines = el.text.split('\n');
     if (el.uppercase) {
       displayLines = displayLines.map(l => l.toUpperCase());
@@ -597,10 +619,10 @@ function drawBubbleCanvas(ctx, bubble, x, y, w, h, fontSize) {
     ctx.fill();
     ctx.strokeStyle = '#000';
     ctx.stroke();
-  } else if (bubble === 'thought') {
+  } else if (bubble === 'thought' || bubble === 'oval') {
     ctx.fillStyle = '#fff';
     ctx.beginPath();
-    ctx.ellipse(x + w / 2, y + h / 2, w / 2 + 8, h / 2 + 8, 0, 0, Math.PI * 2);
+    ctx.ellipse(x + w / 2, y + h / 2, w / 2 + (bubble==='oval'?20:8), h / 2 + (bubble==='oval'?20:8), 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
   } else if (bubble === 'shout') {
@@ -611,10 +633,30 @@ function drawBubbleCanvas(ctx, bubble, x, y, w, h, fontSize) {
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
+  } else if (bubble === 'burst') {
+    ctx.fillStyle = '#fff';
+    ctx.shadowColor = '#111';
+    ctx.shadowBlur = 2;
+    // Spiky random burst
+    const pts = starPoints(x + w / 2, y + h / 2, w / 2 + 30, h / 2 + 30, 20);
+    ctx.beginPath();
+    pts.forEach((p, i) => i === 0 ? ctx.moveTo(p[0], p[1]) : ctx.lineTo(p[0], p[1]));
+    ctx.closePath();
+    ctx.fill();
+  } else if (bubble === 'whisper') {
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    ctx.setLineDash([8, 6]);
+    ctx.strokeStyle = '#999';
+    roundRect(ctx, x, y, w, h, 24);
+    ctx.fill();
+    ctx.stroke();
   } else if (bubble === 'rect') {
     ctx.fillStyle = 'rgba(255,255,255,0.92)';
     ctx.fillRect(x, y, w, h);
     ctx.strokeRect(x, y, w, h);
+  } else if (bubble === 'caption') {
+    ctx.fillStyle = '#111';
+    ctx.fillRect(x, y, w, h);
   }
   ctx.restore();
 }
@@ -634,14 +676,69 @@ function roundRect(ctx, x, y, w, h, r) {
 }
 
 function starPoints(cx, cy, rx, ry, points) {
-  const result = [];
-  for (let i = 0; i < points * 2; i++) {
-    const angle = (i * Math.PI) / points - Math.PI / 2;
-    const r = i % 2 === 0 ? 1 : 0.5;
-    result.push([cx + Math.cos(angle) * rx * r, cy + Math.sin(angle) * ry * r]);
+  const pts = [];
+  const step = Math.PI / points;
+  for (let i = 0; i < 2 * points; i++) {
+    const r = i % 2 === 0 ? 1 : 0.7; // Outer/inner ratio
+    const angle = i * step - Math.PI / 2;
+    pts.push([cx + rx * r * Math.cos(angle), cy + ry * r * Math.sin(angle)]);
   }
-  return result;
+  return pts;
 }
+
+// ─── Signature Pad ────────────────────────────────────────────────────────────
+const sigModal = document.getElementById('sigModal');
+const sigCanvas = document.getElementById('sigCanvas');
+const sigCtx = sigCanvas.getContext('2d');
+let isDrawingSig = false;
+
+document.getElementById('btnSignature').addEventListener('click', () => {
+  sigModal.style.display = 'flex';
+  sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+  sigCtx.lineWidth = 4;
+  sigCtx.lineCap = 'round';
+  sigCtx.lineJoin = 'round';
+  sigCtx.strokeStyle = '#111';
+});
+
+sigCanvas.addEventListener('pointerdown', (e) => {
+  isDrawingSig = true;
+  const rect = sigCanvas.getBoundingClientRect();
+  sigCtx.beginPath();
+  sigCtx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+});
+sigCanvas.addEventListener('pointermove', (e) => {
+  if (!isDrawingSig) return;
+  const rect = sigCanvas.getBoundingClientRect();
+  sigCtx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+  sigCtx.stroke();
+});
+window.addEventListener('pointerup', () => { isDrawingSig = false; });
+window.addEventListener('pointercancel', () => { isDrawingSig = false; });
+
+document.getElementById('btnSigClear').addEventListener('click', () => {
+  sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+});
+document.getElementById('btnSigCancel').addEventListener('click', () => {
+  sigModal.style.display = 'none';
+});
+document.getElementById('btnSigOk').addEventListener('click', () => {
+  const dataUrl = sigCanvas.toDataURL('image/png');
+  const el = {
+    id: ++nextId,
+    type: 'signature',
+    src: dataUrl,
+    x: canvas.width / 2 - 100,
+    y: canvas.height / 2 - 50,
+    width: 200,
+    bubble: 'none'
+  };
+  saveHistory();
+  state.elements.push(el);
+  state.selectedId = el.id;
+  sigModal.style.display = 'none';
+  renderAll();
+});
 
 // ─── Canvas interaction ────────────────────────────────────────────────────────
 // Single click on blank canvas → deselect

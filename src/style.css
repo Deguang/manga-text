@@ -727,3 +727,63 @@ kbd {
   opacity: 1;
   color: #ff4444;
 }
+
+/* ════════════════════════════════════════
+   MODAL (Signature)
+════════════════════════════════════════ */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000; backdrop-filter: blur(6px);
+}
+.modal {
+  background: var(--c-surface-low); border: 1px solid var(--c-outline-h);
+  border-radius: var(--r-xl); padding: var(--sp-xl); min-width: 360px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+}
+.modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-lg); }
+.modal-title { font-family: var(--ff-head); font-size: 15px; font-weight: 600; color: var(--c-on-surface); }
+.modal-close {
+  background: transparent; border: none; color: var(--c-muted); font-size: 14px;
+  width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+  border-radius: var(--r); transition: color 0.12s, background 0.12s; cursor: pointer;
+}
+.modal-close:hover { color: var(--c-primary); background: rgba(99,102,241,0.1); }
+.modal-actions { display: flex; justify-content: flex-end; gap: var(--sp-sm); margin-top: var(--sp-md); }
+
+/* ════════════════════════════════════════
+   NEW BUBBLES
+════════════════════════════════════════ */
+.bubble-oval .text-content-wrap {
+  background: #fff;
+  border: 2.5px solid #111;
+  border-radius: 50% / 50%;
+  padding: 18px 26px;
+}
+
+.bubble-whisper .text-content-wrap {
+  background: rgba(255,255,255,0.85);
+  border: 2px dashed #999;
+  border-radius: 24px;
+  padding: 14px 20px;
+}
+
+.bubble-burst .text-content-wrap {
+  background: #fff;
+  clip-path: polygon(50% 0%, 61% 15%, 85% 5%, 75% 25%, 100% 40%, 80% 55%, 95% 85%, 65% 80%, 50% 100%, 35% 80%, 5% 85%, 20% 55%, 0% 40%, 25% 25%, 15% 5%, 39% 15%);
+  padding: 24px 30px;
+  /* Filter drop-shadow acts like a border for clip-path */
+  filter: drop-shadow(0px 0px 1px #111) drop-shadow(0px 0px 1px #111) drop-shadow(0px 0px 1px #111);
+}
+
+.bubble-caption .text-content-wrap {
+  background: #111;
+  color: #fff !important;
+  border-radius: 2px;
+  padding: 8px 12px;
+}
+
+/* Make sure text within caption stays white despite fontColor setting */
+.bubble-caption .text-display {
+  color: #fff !important;
+}
