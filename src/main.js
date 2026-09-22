@@ -440,7 +440,7 @@ function renderLayerPanel() {
     });
     layerList.appendChild(li);
   });
-  if (window.lucide) window.lucide.createIcons();
+  if (typeof renderIcons === "function") renderIcons();
 }
 
 // ─── Font Preview Initialization ────────────────────────────────────────────────
@@ -895,10 +895,6 @@ window.addEventListener('resize', () => {
   if (state.image) fitCanvasToView();
 });
 
-// Initialize Lucide icons for static HTML
-if (window.lucide) {
-  lucide.createIcons();
-}
 
 // ─── Fullscreen Toggle ──────────────────────────────────────────────────────────
 const btnFullscreen = document.getElementById('btnFullscreen');
@@ -927,7 +923,17 @@ if (btnFullscreen && appContainer) {
     const icon = btnFullscreen.querySelector('i');
     if (icon) {
       icon.setAttribute('data-lucide', isFull ? 'shrink' : 'expand');
-      if (window.lucide) lucide.createIcons();
+      if (typeof renderIcons === "function") renderIcons();
     }
   }
 }
+function renderIcons() {
+  if (typeof lucide !== 'undefined' && lucide.createIcons) {
+    lucide.createIcons();
+  } else if (window.lucide && window.lucide.createIcons) {
+    window.lucide.createIcons();
+  } else {
+    setTimeout(renderIcons, 50);
+  }
+}
+renderIcons();
