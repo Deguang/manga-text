@@ -99,7 +99,7 @@ body {
   border: 1px solid var(--c-outline);
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 30px 80px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05);
+  box-shadow: var(--shadow-app);
   display: flex;
   flex-direction: column;
   position: relative;
@@ -539,7 +539,7 @@ button { cursor: pointer; font-family: var(--ff-head); }
   flex-shrink: 0;
   display: none;
   /* Sharp selection outline */
-  box-shadow: 0 0 0 1px rgba(99,102,241,0.2), 0 8px 32px rgba(0,0,0,0.15);
+  box-shadow: var(--shadow-hud);
 }
 
 #mainCanvas { display: block; }
@@ -781,14 +781,14 @@ button { cursor: pointer; font-family: var(--ff-head); }
    MODAL (Signature)
 ════════════════════════════════════════ */
 .modal-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+  position: fixed; inset: 0; background: var(--c-modal-overlay);
   display: flex; align-items: center; justify-content: center;
   z-index: 1000; backdrop-filter: blur(6px);
 }
 .modal {
   background: var(--c-surface-low); border: 1px solid var(--c-outline-h);
   border-radius: var(--r-xl); padding: var(--sp-xl); min-width: 360px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  box-shadow: var(--shadow-modal);
 }
 .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-lg); }
 .modal-title { font-family: var(--ff-head); font-size: 15px; font-weight: 600; color: var(--c-on-surface); }

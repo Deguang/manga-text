@@ -20,22 +20,30 @@
     <!-- Lucide Icons -->
     <script src="/lucide.min.js"></script>
     <!-- Pre-load background to prevent white flash -->
+    <script>
+      (function() {
+        const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        const savedLang = localStorage.getItem('lang') || 'zh';
+        document.documentElement.setAttribute('lang', savedLang);
+      })();
+    </script>
     <style>
-      html, body {
-        background-color: #F8FAFC;
-        color: #0F172A;
-        margin: 0;
-      }
+      :root, [data-theme="light"] { --c-bg: #F8FAFC; --c-on-bg: #0F172A; }
+      [data-theme="dark"] { --c-bg: #14161B; --c-on-bg: #F8FAFC; }
+      html, body { background-color: var(--c-bg); color: var(--c-on-bg); margin: 0; }
     </style>
   </head>
-  <body style="background-color: #F8FAFC;">
+  <body>
     <!-- LP Navigation -->
     <nav class="lp-nav">
       <div class="lp-container lp-nav-content">
         <span class="lp-logo"><i data-lucide="pen-tool"></i> MangaText Pro</span>
         <div class="lp-links">
-          <a href="#features">功能特性</a>
-          <a href="#editor">立即使用</a>
+          <a href="#" data-i18n="nav.features">功能特性</a>
+          <a href="#" data-i18n="nav.start">立即使用</a>
+          <button id="btnThemeToggle" class="btn-ghost" style="margin-left:16px; width:32px; height:32px; padding:0;"><i data-lucide="moon" style="width:18px;height:18px;"></i></button>
+          <button id="btnLangToggle" class="btn-ghost" style="margin-left:4px; font-weight:bold; width:32px; height:32px; padding:0; font-family:var(--ff-head);">EN</button>
         </div>
       </div>
     </nav>
@@ -44,8 +52,8 @@
     <header class="lp-hero">
       <div class="lp-container">
         <div class="lp-badge">Beta v2.0</div>
-        <h1 class="lp-title">专业级漫画台词与气泡排版工具</h1>
-        <p class="lp-subtitle">在浏览器中即可完成海报、漫画、表情包的工业级排版，支持海量手写字体与多变气泡特效，告别繁杂的图文编辑软件。</p>
+        <h1 class="lp-title"><span data-i18n="hero.title">专业级漫画台词与气泡排版工具</span></h1>
+        <p class="lp-subtitle"><span data-i18n="hero.subtitle">在浏览器中即可完成海报、漫画、表情包的工业级排版，支持海量手写字体与多变气泡特效，告别繁杂的图文编辑软件。</span></p>
       </div>
     </header>
 
@@ -66,14 +74,14 @@
 
           <div class="toolbar-right">
             <button id="btnSignature" class="btn-ghost" title="手写落款" style="color: #10b981;">
-              <i data-lucide="pen-tool" style="width:16px;height:16px;margin-right:6px;vertical-align:-3px;"></i>签名
+              <i data-lucide="pen-tool" style="width:16px;height:16px;margin-right:6px;vertical-align:-3px;"></i><span data-i18n="btn.signature">签名</span>
             </button>
             <div class="toolbar-divider" style="margin: 0 8px;"></div>
             <button id="btnReset" class="btn-ghost" title="清空全部内容并重新开始" style="color: #ef4444;">
-              <i data-lucide="trash" style="width:16px;height:16px;margin-right:6px;vertical-align:-3px;"></i>清空重做
+              <i data-lucide="trash" style="width:16px;height:16px;margin-right:6px;vertical-align:-3px;"></i><span data-i18n="btn.clear_reset">清空重做</span>
             </button>
             <button id="btnChangeImage" class="btn-ghost" title="更换底图而不丢失当前文字">
-              <i data-lucide="image" style="width:16px;height:16px;margin-right:6px;vertical-align:-3px;"></i>更换底图
+              <i data-lucide="image" style="width:16px;height:16px;margin-right:6px;vertical-align:-3px;"></i><span data-i18n="btn.change_bg">更换底图</span>
             </button>
             <div class="btn-group" style="margin-left: 8px;">
               <button id="btnUndo" class="btn-icon" title="撤销 Ctrl+Z">
@@ -84,10 +92,10 @@
               </button>
             </div>
             <button id="btnAddText" class="btn-primary">
-              <i data-lucide="message-square-plus" style="width:16px;height:16px;margin-right:4px;vertical-align:-3px;"></i>添加文字
+              <i data-lucide="message-square-plus" style="width:16px;height:16px;margin-right:4px;vertical-align:-3px;"></i><span data-i18n="btn.add_text">添加文字</span>
             </button>
             <button id="btnExport" class="btn-success">
-              <i data-lucide="download" style="width:16px;height:16px;margin-right:4px;vertical-align:-3px;"></i>导出
+              <i data-lucide="download" style="width:16px;height:16px;margin-right:4px;vertical-align:-3px;"></i><span data-i18n="btn.export">导出</span>
             </button>
             <select id="exportFormat" class="tool-select" style="width:68px">
               <option value="png">PNG</option>
@@ -104,15 +112,15 @@
         <div class="modal-overlay" id="sigModal" style="display:none">
           <div class="modal">
             <div class="modal-header">
-              <h2 class="modal-title">手写签名</h2>
+              <h2 class="modal-title"><h2 class="modal-title" data-i18n="modal.signature.title">手写签名</h2>
               <button class="modal-close" id="btnSigCancel">✕</button>
             </div>
             <div class="sig-pad-wrap" style="background:#fff; border-radius: 8px; border: 1px solid var(--c-outline); overflow:hidden;">
               <canvas id="sigCanvas" width="400" height="200" style="display:block; cursor:crosshair; touch-action:none;"></canvas>
             </div>
             <div class="modal-actions" style="margin-top: 16px;">
-              <button id="btnSigClear" class="btn-ghost">清除重画</button>
-              <button id="btnSigOk" class="btn-primary">保存落款</button>
+              <button id="btnSigClear" class="btn-ghost"><span data-i18n="modal.btn.clear">清除重画</span></button>
+              <button id="btnSigOk" class="btn-primary"><span data-i18n="modal.btn.save">保存落款</span></button>
             </div>
           </div>
         </div>
@@ -124,7 +132,7 @@
             <input type="file" id="fileInput" accept="image/*" hidden />
             <div class="panel">
               <div class="panel-header">
-                <span class="panel-title">图层列表</span>
+                <span class="panel-title" data-i18n="panel.layers">图层列表</span>
                 <span class="panel-count" id="layerCount">0</span>
               </div>
               <ul id="layerList" class="layer-list"></ul>
@@ -154,7 +162,7 @@
                 <button id="btnZoomOut" class="hud-btn">−</button>
                 <span id="zoomLabel" class="hud-zoom-label">100%</span>
                 <button id="btnZoomIn" class="hud-btn">+</button>
-                <button id="btnZoomFit" class="hud-btn hud-btn-text">适应</button>
+                <button id="btnZoomFit" class="hud-btn hud-btn-text"><span data-i18n="hud.fit">适应</span></button>
               </div>
             </div>
           </section>
@@ -163,7 +171,7 @@
           <aside class="sidebar sidebar-right">
             <div class="panel">
               <div class="panel-header">
-                <span class="panel-title">文本属性</span>
+                <span class="panel-title" data-i18n="panel.props">文本属性</span>
               </div>
               <div class="prop-content">
                 <!-- 字体 -->
@@ -259,16 +267,16 @@
                 <div class="prop-row">
                   <label class="prop-label">形状</label>
                   <select id="bubbleStyle" class="tool-select" style="flex:1; width: 100%;">
-                    <option value="none">无背景</option>
-                    <option value="oval">椭圆对话</option>
-                    <option value="speech-right">对话（右尾）</option>
-                    <option value="speech-left">对话（左尾）</option>
-                    <option value="thought">思考气泡</option>
-                    <option value="whisper">悄悄话（虚线）</option>
-                    <option value="shout">大声喊（折角）</option>
-                    <option value="burst">爆炸特效（张扬）</option>
-                    <option value="rect">旁白框（方正）</option>
-                    <option value="caption">字幕黑底（无边）</option>
+                    <option value="none" data-i18n="bubble.none">无背景</option>
+                    <option value="oval" data-i18n="bubble.oval">椭圆对话</option>
+                    <option value="speech-right" data-i18n="bubble.right">对话（右尾）</option>
+                    <option value="speech-left" data-i18n="bubble.left">对话（左尾）</option>
+                    <option value="thought" data-i18n="bubble.thought">思考气泡</option>
+                    <option value="whisper" data-i18n="bubble.whisper">悄悄话（虚线）</option>
+                    <option value="shout" data-i18n="bubble.shout">大声喊（折角）</option>
+                    <option value="burst" data-i18n="bubble.burst">爆炸特效（张扬）</option>
+                    <option value="rect" data-i18n="bubble.rect">旁白框（方正）</option>
+                    <option value="caption" data-i18n="bubble.caption">字幕黑底（无边）</option>
                   </select>
                 </div>
 
@@ -282,22 +290,22 @@
     <!-- LP Features -->
     <section class="lp-features" id="features">
       <div class="lp-container">
-        <h2>为什么选择 MangaText Pro？</h2>
+        <h2><h2 data-i18n="features.title">为什么选择 MangaText Pro？</h2>
         <div class="lp-grid">
           <div class="lp-card">
             <i data-lucide="zap"></i>
-            <h3>极速上手，即刻出图</h3>
-            <p>无需繁琐的下载与安装，直接在浏览器中拥有媲美专业软件的图文处理能力，拖入图片即可开始创作。</p>
+            <h3><h3 data-i18n="features.f1.title">极速上手，即刻出图</h3>
+            <p><p data-i18n="features.f1.desc">无需繁琐的下载与安装，直接在浏览器中拥有媲美专业软件的图文处理能力，拖入图片即可开始创作。</p>
           </div>
           <div class="lp-card">
             <i data-lucide="type"></i>
-            <h3>海量精选漫画字体</h3>
-            <p>内置数十款精心挑选的二次元专属中英文手写字体、爆炸音效字体，一键赋予文字跳跃的灵魂。</p>
+            <h3><h3 data-i18n="features.f2.title">海量精选漫画字体</h3>
+            <p><p data-i18n="features.f2.desc">内置数十款精心挑选的二次元专属中英文手写字体、爆炸音效字体，一键赋予文字跳跃的灵魂。</p>
           </div>
           <div class="lp-card">
             <i data-lucide="message-circle"></i>
-            <h3>百变气泡与音效特效</h3>
-            <p>大声呼喊的爆炸框、内心的云朵气泡、荧光笔高亮、乃至专属的亲笔签名，这里全都有，轻松还原漫画质感。</p>
+            <h3><h3 data-i18n="features.f3.title">百变气泡与音效特效</h3>
+            <p><p data-i18n="features.f3.desc">大声呼喊的爆炸框、内心的云朵气泡、荧光笔高亮、乃至专属的亲笔签名，这里全都有，轻松还原漫画质感。</p>
           </div>
         </div>
       </div>

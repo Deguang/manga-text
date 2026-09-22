@@ -1,3 +1,5 @@
+import { dict } from "./i18n.js";
+
 import './style.css';
 
 // ─── State ───────────────────────────────────────────────────────────────────
@@ -971,3 +973,59 @@ function renderIcons() {
   }
 }
 renderIcons();
+
+// ─── Theme & i18n ─────────────────────────────────────────────────────────────
+
+const btnThemeToggle = document.getElementById('btnThemeToggle');
+const btnLangToggle = document.getElementById('btnLangToggle');
+
+if (btnThemeToggle) {
+  btnThemeToggle.addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+    updateThemeIcon(next);
+  });
+  
+  function updateThemeIcon(theme) {
+    const icon = btnThemeToggle.querySelector('i');
+    if (icon) {
+      icon.setAttribute('data-lucide', theme === 'dark' ? 'sun' : 'moon');
+      if (typeof renderIcons === "function") renderIcons();
+    }
+  }
+  // init
+  updateThemeIcon(document.documentElement.getAttribute('data-theme') || 'light');
+}
+
+if (btnLangToggle) {
+  function applyLang(lang) {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (dict[key] && dict[key][lang]) {
+        if (el.tagName === 'OPTGROUP') {
+          el.label = dict[key][lang];
+        } else {
+          // If it has children like icons, preserve them? No, we wrapped text in spans!
+          el.innerText = dict[key][lang];
+        }
+      }
+    });
+    btnLangToggle.innerText = lang === 'en' ? '中' : 'EN';
+    
+    // Update document title
+    document.title = lang === 'en' ? 'MangaText Pro' : '漫画文字编辑器';
+  }
+
+  btnLangToggle.addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('lang') || 'zh';
+    const next = current === 'zh' ? 'en' : 'zh';
+    document.documentElement.setAttribute('lang', next);
+    localStorage.setItem('lang', next);
+    applyLang(next);
+  });
+  
+  // init
+  applyLang(document.documentElement.getAttribute('lang') || 'zh');
+}
