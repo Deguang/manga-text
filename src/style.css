@@ -412,16 +412,15 @@ button { cursor: pointer; font-family: var(--ff-head); }
 }
 
 /* Layer list */
-.layer-list { list-style: none; padding: 0 var(--sp-sm) var(--sp-sm); display: flex; flex-direction: column; gap: 2px; max-height: 180px; overflow-y: auto; }
+.layer-list { list-style: none; padding: 0 var(--sp-sm) var(--sp-sm); display: flex; flex-direction: column; gap: 2px; flex: 1; overflow-y: auto; }
 .layer-item {
   display: flex;
   align-items: center;
   gap: var(--sp-sm);
   background: var(--c-surface-mid);
-  border: 1px solid transparent;
+  border: 1px solid var(--c-outline);
   border-radius: var(--r);
-  padding: 5px 8px;
-  font-size: 11px;
+  padding: 6px 10px;
   cursor: pointer;
   transition: all 0.12s;
   border-left: 2px solid transparent;
@@ -436,21 +435,6 @@ button { cursor: pointer; font-family: var(--ff-head); }
 .layer-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; }
 .layer-del { color: var(--c-muted); font-size: 10px; flex-shrink: 0; transition: color 0.12s; }
 .layer-del:hover { color: var(--c-primary); }
-
-/* Tips */
-.tips-list { list-style: none; padding: var(--sp-xs) var(--sp-md) var(--sp-md); display: flex; flex-direction: column; gap: 5px; }
-.tips-list li { font-size: 11px; color: var(--c-muted); display: flex; align-items: center; gap: 6px; }
-kbd {
-  font-family: var(--ff-mono);
-  font-size: 9px;
-  background: var(--c-surface-high);
-  border: 1px solid var(--c-outline-h);
-  border-radius: var(--r-sm);
-  padding: 1px 4px;
-  color: var(--c-on-surface);
-  white-space: nowrap;
-  flex-shrink: 0;
-}
 
 /* ════════════════════════════════════════
    CANVAS AREA
@@ -786,4 +770,11 @@ kbd {
 /* Make sure text within caption stays white despite fontColor setting */
 .bubble-caption .text-display {
   color: #fff !important;
+}
+
+.sidebar-left .panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
 }
