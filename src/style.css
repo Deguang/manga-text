@@ -317,12 +317,35 @@ button { cursor: pointer; font-family: var(--ff-head); }
 .sidebar {
   width: var(--sidebar-w);
   background: var(--c-surface-low);
-  border-right: 1px solid var(--c-outline);
   display: flex;
   flex-direction: column;
-  flex-shrink: 0;
   overflow-y: auto;
-  gap: 0;
+}
+.sidebar-left {
+  border-right: 1px solid var(--c-outline);
+}
+.sidebar-right {
+  border-left: 1px solid var(--c-outline);
+  width: 260px; /* Slightly wider for properties */
+}
+
+.prop-content {
+  padding: var(--sp-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-md);
+}
+.prop-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.prop-label {
+  width: 50px;
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  color: var(--c-muted);
+  flex-shrink: 0;
 }
 
 /* Upload zone */
