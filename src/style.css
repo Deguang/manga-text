@@ -53,16 +53,73 @@
 body {
   font-family: var(--ff-body);
   background: var(--c-bg);
-  color: var(--c-on-surface);
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+  color: var(--c-on-bg);
+  min-height: 100vh;
   font-size: 13px;
   line-height: 18px;
 }
 
-#app { display: flex; flex-direction: column; height: 100vh; }
+/* ════════════════════════════════════════
+   LANDING PAGE STYLES
+════════════════════════════════════════ */
+.lp-container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+.lp-nav { border-bottom: 1px solid var(--c-outline); background: var(--c-surface-low); position: sticky; top: 0; z-index: 100; }
+.lp-nav-content { display: flex; justify-content: space-between; align-items: center; height: 60px; }
+.lp-logo { font-family: var(--ff-head); font-weight: 700; font-size: 18px; display: flex; align-items: center; gap: 8px; color: var(--c-on-surface); }
+.lp-links a { color: var(--c-muted); text-decoration: none; font-size: 14px; margin-left: 24px; transition: color 0.2s; font-weight: 500; }
+.lp-links a:hover { color: var(--c-primary); }
+
+.lp-hero { padding: 80px 0 60px; text-align: center; }
+.lp-badge { display: inline-block; background: rgba(99,102,241,0.15); color: var(--c-primary); padding: 4px 12px; border-radius: 99px; font-size: 12px; font-weight: 600; margin-bottom: 24px; border: 1px solid rgba(99,102,241,0.3); }
+.lp-title { font-family: var(--ff-head); font-size: 48px; font-weight: 800; margin-bottom: 24px; color: #fff; letter-spacing: -0.02em; line-height: 1.2; }
+.lp-subtitle { font-size: 18px; color: var(--c-muted); max-width: 680px; margin: 0 auto; line-height: 1.6; }
+
+.lp-editor-wrapper { padding: 0 24px 80px; }
+
+.lp-features { padding: 80px 0; background: var(--c-surface-low); border-top: 1px solid var(--c-outline); }
+.lp-features h2 { text-align: center; font-family: var(--ff-head); font-size: 32px; margin-bottom: 64px; color: #fff; }
+.lp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px; }
+.lp-card { background: var(--c-bg); border: 1px solid var(--c-outline); padding: 32px; border-radius: 16px; transition: transform 0.2s; }
+.lp-card:hover { transform: translateY(-4px); border-color: var(--c-outline-h); }
+.lp-card i { color: var(--c-primary); width: 32px; height: 32px; margin-bottom: 20px; }
+.lp-card h3 { font-size: 20px; font-weight: 600; margin-bottom: 12px; color: #fff; }
+.lp-card p { color: var(--c-muted); line-height: 1.6; font-size: 14px; }
+
+.lp-footer { padding: 40px 0; text-align: center; border-top: 1px solid var(--c-outline); color: var(--c-muted); font-size: 14px; }
+
+/* ════════════════════════════════════════
+   APP CONTAINER
+════════════════════════════════════════ */
+.app-container {
+  height: 75vh;
+  min-height: 640px;
+  max-height: 900px;
+  max-width: 1360px;
+  margin: 0 auto;
+  border: 1px solid var(--c-outline);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background: var(--c-bg);
+}
+
+.app-container.is-fullscreen {
+  height: 100vh;
+  max-height: none;
+  max-width: none;
+  border-radius: 0;
+  border: none;
+  margin: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  z-index: 9999;
+}
+
 
 /* ════════════════════════════════════════
    TOOLBAR
@@ -778,3 +835,5 @@ button { cursor: pointer; font-family: var(--ff-head); }
   flex: 1;
   min-height: 0;
 }
+
+html { scroll-behavior: smooth; }

@@ -899,3 +899,35 @@ window.addEventListener('resize', () => {
 if (window.lucide) {
   lucide.createIcons();
 }
+
+// ─── Fullscreen Toggle ──────────────────────────────────────────────────────────
+const btnFullscreen = document.getElementById('btnFullscreen');
+const appContainer = document.getElementById('addTextApp');
+
+if (btnFullscreen && appContainer) {
+  btnFullscreen.addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      appContainer.requestFullscreen().catch(err => {
+        // Fallback to CSS fullscreen
+        appContainer.classList.add('is-fullscreen');
+        updateFullscreenIcon(true);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  });
+
+  document.addEventListener('fullscreenchange', () => {
+    const isFull = !!document.fullscreenElement;
+    appContainer.classList.toggle('is-fullscreen', isFull);
+    updateFullscreenIcon(isFull);
+  });
+
+  function updateFullscreenIcon(isFull) {
+    const icon = btnFullscreen.querySelector('i');
+    if (icon) {
+      icon.setAttribute('data-lucide', isFull ? 'shrink' : 'expand');
+      if (window.lucide) lucide.createIcons();
+    }
+  }
+}
