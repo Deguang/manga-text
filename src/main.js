@@ -1247,3 +1247,195 @@ if (btnHelp && guideModal) {
   btnGuideClose.addEventListener('click', closeGuide);
   btnGuideOk.addEventListener('click', closeGuide);
 }
+
+// ─── Grid Composer (Multi-Panel) ─────────────────────────────────────────────
+const gridModal = document.getElementById('gridModal');
+const btnOpenGrid = document.getElementById('btnOpenGrid');
+const btnGridClose = document.getElementById('btnGridClose');
+const gridComposer = document.getElementById('gridComposer');
+const gridFileInput = document.getElementById('gridFileInput');
+const btnGridClear = document.getElementById('btnGridClear');
+const btnGridGenerate = document.getElementById('btnGridGenerate');
+const gridTmplBtns = document.querySelectorAll('.grid-tmpl-btn');
+
+let currentGridTmpl = '1x2';
+let cellImages = {}; // { cellIndex: ImageObject }
+let activeCellIdx = null;
+
+const tmplDefs = {
+  '1x2': { cols: 1, rows: 2 },
+  '2x2': { cols: 2, rows: 2 },
+  '1x4': { cols: 1, rows: 4 }
+};
+
+if (btnOpenGrid) {
+  btnOpenGrid.addEventListener('click', () => {
+    gridModal.style.display = 'flex';
+    renderGridComposer('1x2');
+  });
+  
+  btnGridClose.addEventListener('click', () => {
+    gridModal.style.display = 'none';
+  });
+  
+  gridTmplBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      gridTmplBtns.forEach(b => {
+        b.classList.remove('active');
+        b.style.border = 'none';
+        b.style.color = 'var(--c-on-bg)';
+      });
+      btn.classList.add('active');
+      btn.style.border = '1px solid var(--c-primary)';
+      btn.style.color = 'var(--c-primary)';
+      currentGridTmpl = btn.dataset.tmpl;
+      renderGridComposer(currentGridTmpl);
+    });
+  });
+  
+  function renderGridComposer(tmplKey) {
+    const t = tmplDefs[tmplKey];
+    gridComposer.style.gridTemplateColumns = `repeat(${t.cols}, 1fr)`;
+    gridComposer.style.gridTemplateRows = `repeat(${t.rows}, 1fr)`;
+    gridComposer.innerHTML = '';
+    cellImages = {};
+    
+    for (let i = 0; i < t.cols * t.rows; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'grid-cell';
+      cell.dataset.idx = i;
+      cell.style.background = '#e2e8f0';
+      cell.style.border = '1px solid #cbd5e1';
+      cell.style.display = 'flex';
+      cell.style.alignItems = 'center';
+      cell.style.justifyContent = 'center';
+      cell.style.cursor = 'pointer';
+      cell.style.overflow = 'hidden';
+      cell.style.position = 'relative';
+      cell.innerHTML = `<i data-lucide="image-plus" style="color:#94a3b8; width:24px; height:24px;"></i>`;
+      
+      cell.addEventListener('click', () => {
+        activeCellIdx = i;
+        gridFileInput.click();
+      });
+      gridComposer.appendChild(cell);
+    }
+    if (typeof renderIcons === "function") renderIcons();
+  }
+  
+  gridFileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file || activeCellIdx === null) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onload = () => {
+        cellImages[activeCellIdx] = img;
+        const cell = gridComposer.querySelector(`.grid-cell[data-idx="${activeCellIdx}"]`);
+        if (cell) {
+          cell.innerHTML = ''; // remove icon
+          cell.style.backgroundImage = `url(${img.src})`;
+          cell.style.backgroundSize = 'cover';
+          cell.style.backgroundPosition = 'center';
+        }
+        gridFileInput.value = '';
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+  
+  btnGridClear.addEventListener('click', () => {
+    renderGridComposer(currentGridTmpl);
+  });
+  
+  btnGridGenerate.addEventListener('click', () => {
+    const t = tmplDefs[currentGridTmpl];
+    const cvs = document.createElement('canvas');
+    // Standard A4-ish manga page resolution
+    cvs.width = 1200; 
+    cvs.height = Math.round(1200 * 1.414);
+    const ctx = cvs.getContext('2d');
+    
+    // BG
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, cvs.width, cvs.height);
+    
+    // Frame metrics
+    const pad = 40;
+    const gutter = 20;
+    const border = 8;
+    const innerW = cvs.width - pad*2;
+    const innerH = cvs.height - pad*2;
+    const cellW = (innerW - gutter*(t.cols-1)) / t.cols;
+    const cellH = (innerH - gutter*(t.rows-1)) / t.rows;
+    
+    for (let r=0; r<t.rows; r++) {
+      for (let c=0; c<t.cols; c++) {
+        const idx = r*t.cols + c;
+        const x = pad + c*(cellW + gutter);
+        const y = pad + r*(cellH + gutter);
+        
+        // Draw black border
+        ctx.fillStyle = '#111';
+        ctx.fillRect(x - border, y - border, cellW + border*2, cellH + border*2);
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(x, y, cellW, cellH);
+        
+        if (cellImages[idx]) {
+          const img = cellImages[idx];
+          const imgRatio = img.width / img.height;
+          const cellRatio = cellW / cellH;
+          let sx, sy, sw, sh;
+          if (imgRatio > cellRatio) {
+            sh = img.height;
+            sw = img.height * cellRatio;
+            sx = (img.width - sw) / 2;
+            sy = 0;
+          } else {
+            sw = img.width;
+            sh = img.width / cellRatio;
+            sx = 0;
+            sy = (img.height - sh) / 2;
+          }
+          ctx.drawImage(img, sx, sy, sw, sh, x, y, cellW, cellH);
+        }
+      }
+    }
+    
+    const dataUrl = cvs.toDataURL('image/jpeg', 0.9);
+    loadImageFromUrl(dataUrl);
+    gridModal.style.display = 'none';
+  });
+}
+
+function loadImageFromUrl(url) {
+  const img = new Image();
+  img.onload = () => {
+    state.image = img;
+    canvas.width = img.width;
+    canvas.height = img.height;
+    textLayer.style.width = img.width + 'px';
+    textLayer.style.height = img.height + 'px';
+    ctx.drawImage(img, 0, 0);
+    canvasContainer.style.display = 'block';
+    canvasHint.style.display = 'none';
+    document.getElementById('canvasArea').classList.add('has-image');
+    if (canvasHud) canvasHud.style.display = 'flex';
+    syncColorPreviews();
+    fitCanvasToView();
+    renderAll();
+    if (!localStorage.getItem('hasSeenGuide')) {
+      document.getElementById('guideModal').style.display = 'flex';
+    }
+  };
+  img.src = url;
+}
+
+const btnCenterUp = document.getElementById('btnCenterUpload');
+if (btnCenterUp) {
+  btnCenterUp.addEventListener('click', (e) => {
+    e.stopPropagation();
+    document.getElementById('fileInput').click();
+  });
+}

@@ -111,6 +111,38 @@
           </div>
         </header>
 
+        
+        <!-- 多格分镜弹窗 -->
+        <div class="modal-overlay" id="gridModal" style="display:none; z-index: 1500;">
+          <div class="modal" style="max-width: 480px; width: 100%;">
+            <div class="modal-header">
+              <h2 class="modal-title" data-i18n="grid.title">多格分镜排版</h2>
+              <button class="modal-close" id="btnGridClose">✕</button>
+            </div>
+            <div class="modal-body">
+              <div style="display:flex; gap:8px; margin-bottom:16px;">
+                <button class="btn-ghost grid-tmpl-btn active" data-tmpl="1x2" style="flex:1; border:1px solid var(--c-primary); color:var(--c-primary);">日字双格</button>
+                <button class="btn-ghost grid-tmpl-btn" data-tmpl="2x2" style="flex:1;">田字四格</button>
+                <button class="btn-ghost grid-tmpl-btn" data-tmpl="1x4" style="flex:1;">条漫四格</button>
+              </div>
+              
+              <div class="grid-composer-wrap" style="background:var(--c-surface-mid); padding:16px; border-radius:8px; display:flex; justify-content:center; align-items:center;">
+                <!-- Standard manga ratio 1:1.414, scaled down for preview -->
+                <div id="gridComposer" style="width: 200px; height: 282px; background: #fff; border: 4px solid #111; padding: 4px; display: grid; gap: 4px;">
+                  <!-- cells injected by JS -->
+                </div>
+              </div>
+              
+              <input type="file" id="gridFileInput" accept="image/*" hidden />
+              
+              <div class="modal-actions" style="margin-top: 16px;">
+                <button id="btnGridClear" class="btn-ghost"><span data-i18n="modal.btn.clear">清空重配</span></button>
+                <button id="btnGridGenerate" class="btn-primary"><span data-i18n="grid.btn.generate">生成画板并加字</span></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- 引导弹窗 -->
         <div class="modal-overlay" id="guideModal" style="display:none; z-index: 2000;">
           <div class="modal" style="max-width: 380px;">
@@ -211,8 +243,12 @@
             <div class="canvas-hint" id="canvasHint">
               <div class="canvas-hint-inner">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="color: var(--c-muted); opacity: 0.5;" stroke-width="1"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                <p data-i18n="canvas.empty.title">点击或拖拽图片到这里</p>
-                <span class="canvas-hint-sub" data-i18n="canvas.empty.sub">支持 PNG / JPG / WebP</span>
+                <h3 data-i18n="canvas.empty.title" style="margin:0;">开始创作您的漫画</h3>
+                <span class="canvas-hint-sub" data-i18n="canvas.empty.sub">选择一张底图，或创建多格分镜</span>
+                <div style="display:flex; gap:16px; margin-top:16px;">
+                  <button id="btnCenterUpload" class="btn-primary" style="height:36px; padding:0 24px;"><i data-lucide="image-plus" style="width:16px;margin-right:6px;"></i><span data-i18n="btn.upload_single">单图创作</span></button>
+                  <button id="btnOpenGrid" class="btn-ghost" style="height:36px; padding:0 24px; border:1px solid var(--c-primary); color:var(--c-primary);"><i data-lucide="layout-grid" style="width:16px;margin-right:6px;"></i><span data-i18n="btn.grid_comic">多格分镜</span></button>
+                </div>
               </div>
             </div>
 

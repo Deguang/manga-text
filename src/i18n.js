@@ -52,12 +52,12 @@ export const dict = {
     "en": "Layers"
   },
   "canvas.empty.title": {
-    "zh": "点击或拖拽图片到这里",
-    "en": "Click or drag image here"
+    "zh": "开始创作您的漫画",
+    "en": "Start Creating Your Comic"
   },
   "canvas.empty.sub": {
-    "zh": "支持 PNG / JPG / WebP",
-    "en": "Supports PNG / JPG / WebP"
+    "zh": "选择一张底图，或创建多格分镜",
+    "en": "Choose a base image or create a grid layout"
   },
   "hud.fit": {
     "zh": "适应",
@@ -238,5 +238,21 @@ export const dict = {
   "guide.btn.ok": {
     "zh": "我知道了，开始创作",
     "en": "Got it, let's create!"
+  },
+  "btn.upload_single": {
+    "zh": "单图创作",
+    "en": "Single Panel"
+  },
+  "btn.grid_comic": {
+    "zh": "多格分镜",
+    "en": "Comic Grid"
+  },
+  "grid.title": {
+    "zh": "多格分镜排版",
+    "en": "Comic Grid Layout"
+  },
+  "grid.btn.generate": {
+    "zh": "生成画板并加字",
+    "en": "Generate Canvas & Letter"
   }
 };
