@@ -1198,7 +1198,43 @@ if (btnHelp && guideModal) {
     guideModal.style.display = 'flex';
   });
   const closeGuide = () => {
-    guideModal.style.display = 'none';
+    const modal = guideModal.querySelector('.modal');
+    if (btnHelp && modal) {
+      // Get bounding boxes
+      const btnRect = btnHelp.getBoundingClientRect();
+      const modalRect = modal.getBoundingClientRect();
+      
+      // Calculate centers
+      const btnCX = btnRect.left + btnRect.width / 2;
+      const btnCY = btnRect.top + btnRect.height / 2;
+      const modalCX = modalRect.left + modalRect.width / 2;
+      const modalCY = modalRect.top + modalRect.height / 2;
+      
+      // Calculate transform delta
+      const tx = btnCX - modalCX;
+      const ty = btnCY - modalCY;
+      
+      // Apply magic animation
+      modal.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+      modal.style.transform = `translate(${tx}px, ${ty}px) scale(0.05)`;
+      modal.style.opacity = '0';
+      
+      // Fade out the overlay background
+      guideModal.style.transition = 'background-color 0.4s ease';
+      guideModal.style.backgroundColor = 'transparent';
+      
+      setTimeout(() => {
+        guideModal.style.display = 'none';
+        // Reset styles for next open
+        modal.style.transition = '';
+        modal.style.transform = '';
+        modal.style.opacity = '';
+        guideModal.style.transition = '';
+        guideModal.style.backgroundColor = '';
+      }, 500);
+    } else {
+      guideModal.style.display = 'none';
+    }
     localStorage.setItem('hasSeenGuide', 'true');
   };
   btnGuideClose.addEventListener('click', closeGuide);
