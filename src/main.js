@@ -416,9 +416,12 @@ function renderLayerPanel() {
     li.className = `layer-item${el.id === state.selectedId ? ' selected' : ''}`;
     let layerPreviewText = el.text || '(空文字)';
     if (el.uppercase) layerPreviewText = layerPreviewText.toUpperCase();
-    const ff = el.fontFamily.includes(',') ? el.fontFamily : `"${el.fontFamily}"`;
+    if (el.type === 'signature') layerPreviewText = '(手写落款)';
+    const ff = el.fontFamily ? (el.fontFamily.includes(',') ? el.fontFamily : `"${el.fontFamily}"`) : 'system-ui';
+    
+    const iconName = el.type === 'signature' ? 'pen-tool' : 'type';
     li.innerHTML = `
-      <i data-lucide="type" class="layer-icon" style="width:14px; height:14px;"></i>
+      <i data-lucide="${iconName}" class="layer-icon" style="width:14px; height:14px;"></i>
       <span class="layer-text" style="font-family:${ff},cursive; font-weight:${el.bold?'700':'400'}">${layerPreviewText}</span>
       <i data-lucide="trash-2" class="layer-del" data-id="${el.id}" title="删除" style="width:14px; height:14px; cursor:pointer;"></i>
     `;
