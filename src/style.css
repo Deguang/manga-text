@@ -873,3 +873,14 @@ button { cursor: pointer; font-family: var(--ff-head); }
 }
 
 html { scroll-behavior: smooth; }
+
+@keyframes icon-bounce {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.25) rotate(-15deg); }
+  50% { transform: scale(1.25) rotate(10deg); }
+  70% { transform: scale(1.1) rotate(-5deg); }
+  100% { transform: scale(1); }
+}
+.icon-shake {
+  animation: icon-bounce 0.4s ease-out;
+}

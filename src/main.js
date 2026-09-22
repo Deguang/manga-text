@@ -1219,9 +1219,11 @@ if (btnHelp && guideModal) {
       modal.style.transform = `translate(${tx}px, ${ty}px) scale(0.05)`;
       modal.style.opacity = '0';
       
-      // Fade out the overlay background
-      guideModal.style.transition = 'background-color 0.4s ease';
-      guideModal.style.backgroundColor = 'transparent';
+      // Instantly remove background and blur so only the box flies
+      guideModal.style.transition = 'none';
+      guideModal.style.background = 'transparent';
+      guideModal.style.backdropFilter = 'none';
+      guideModal.style.webkitBackdropFilter = 'none';
       
       setTimeout(() => {
         guideModal.style.display = 'none';
@@ -1229,8 +1231,13 @@ if (btnHelp && guideModal) {
         modal.style.transition = '';
         modal.style.transform = '';
         modal.style.opacity = '';
-        guideModal.style.transition = '';
-        guideModal.style.backgroundColor = '';
+        guideModal.style.background = '';
+        guideModal.style.backdropFilter = '';
+        guideModal.style.webkitBackdropFilter = '';
+        
+        // Shake the help button to indicate it arrived
+        btnHelp.classList.add('icon-shake');
+        setTimeout(() => btnHelp.classList.remove('icon-shake'), 400);
       }, 500);
     } else {
       guideModal.style.display = 'none';
