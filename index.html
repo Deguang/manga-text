@@ -19,8 +19,16 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cn-fontsource-yozai-regular/font.css" />
     <!-- Lucide Icons -->
     <script src="/lucide.min.js"></script>
+    <!-- Pre-load background to prevent white flash -->
+    <style>
+      html, body {
+        background-color: #14161b;
+        color: #f8fafc;
+        margin: 0;
+      }
+    </style>
   </head>
-  <body>
+  <body style="background-color: #14161b;">
     <!-- LP Navigation -->
     <nav class="lp-nav">
       <div class="lp-container lp-nav-content">
