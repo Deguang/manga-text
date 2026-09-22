@@ -468,10 +468,10 @@ function addTextInline(x, y) {
 }
 
 // ─── Toolbar style changes apply to selected ──────────────────────────────────
-function applyStyleToSelected() {
+function applyStyleToSelected(skipHistory = false) {
   const el = state.elements.find(e => e.id === state.selectedId);
   if (!el) return;
-  saveHistory();
+  if (!skipHistory) saveHistory();
   el.fontFamily = fontFamilyEl.value;
   el.fontSize = parseInt(fontSizeEl.value) || 32;
   el.color = fontColorEl.value;
@@ -482,7 +482,49 @@ function applyStyleToSelected() {
   el.uppercase = document.getElementById('btnUppercase').classList.contains('active');
   el.highlight = document.getElementById('btnHighlight').classList.contains('active');
   el.wavy = document.getElementById('btnWavy').classList.contains('active');
-  renderAll();
+  
+  // Fast DOM update for style changes instead of renderAll()
+  updateElementDOM(el);
+}
+
+function updateElementDOM(el) {
+  const div = document.querySelector(`.text-element[data-id="${el.id}"]`);
+  if (!div) return;
+  
+  // Update bubble class
+  div.className = `text-element bubble-${el.bubble}${el.id === state.selectedId ? ' selected' : ''}`;
+  
+  // Update text styles
+  const textEl = div.querySelector('.text-display');
+  if (textEl) {
+    textEl.style.fontFamily = el.fontFamily;
+    textEl.style.fontSize = el.fontSize + 'px';
+    textEl.style.color = el.color;
+    textEl.style.fontWeight = el.bold ? 'bold' : 'normal';
+    textEl.style.textTransform = el.uppercase ? 'uppercase' : 'none';
+    
+    // Webkit stroke
+    if (el.strokeWidth > 0) {
+      textEl.style.webkitTextStroke = `${el.strokeWidth}px ${el.strokeColor}`;
+    } else {
+      textEl.style.webkitTextStroke = '0';
+    }
+    
+    // Highlight / Wavy
+    textEl.style.backgroundColor = el.highlight ? 'rgba(255,229,102,0.6)' : 'transparent';
+    if (el.wavy) {
+      textEl.style.textDecoration = 'underline wavy var(--c-primary)';
+      textEl.style.textUnderlineOffset = '4px';
+    } else {
+      textEl.style.textDecoration = 'none';
+    }
+  }
+  
+  // Sync layer list without full re-render
+  const li = document.querySelector(`#layerList li[data-id="${el.id}"] .layer-text`);
+  if (li) {
+    li.style.fontFamily = el.fontFamily;
+  }
 }
 
 // ─── Export ───────────────────────────────────────────────────────────────────
@@ -841,10 +883,13 @@ document.getElementById('btnReset').addEventListener('click', () => {
 });
 
 // ─── Toolbar events ───────────────────────────────────────────────────────────
-[fontFamilyEl, fontSizeEl, fontColorEl, strokeColorEl, strokeWidthEl, bubbleStyleEl]
-  .forEach(el => el.addEventListener('change', applyStyleToSelected));
-fontColorEl.addEventListener('input', () => { syncColorPreviews(); applyStyleToSelected(); });
-strokeColorEl.addEventListener('input', () => { syncColorPreviews(); applyStyleToSelected(); });
+[fontFamilyEl, fontSizeEl, strokeWidthEl, bubbleStyleEl]
+  .forEach(el => el.addEventListener('change', () => applyStyleToSelected(false)));
+
+fontColorEl.addEventListener('input', () => { syncColorPreviews(); applyStyleToSelected(true); });
+strokeColorEl.addEventListener('input', () => { syncColorPreviews(); applyStyleToSelected(true); });
+fontColorEl.addEventListener('change', () => { applyStyleToSelected(false); });
+strokeColorEl.addEventListener('change', () => { applyStyleToSelected(false); });
 
 // Toggle buttons
 ['btnBold', 'btnUppercase', 'btnHighlight', 'btnWavy'].forEach(id => {
@@ -927,8 +972,15 @@ document.querySelector('.canvas-area').addEventListener('wheel', (e) => {
 }, { passive: false });
 
 // ─── Window resize ────────────────────────────────────────────────────────────
+let resizeScheduled = false;
 window.addEventListener('resize', () => {
-  if (state.image) fitCanvasToView();
+  if (!resizeScheduled && state.image) {
+    resizeScheduled = true;
+    requestAnimationFrame(() => {
+      fitCanvasToView();
+      resizeScheduled = false;
+    });
+  }
 });
 
 
