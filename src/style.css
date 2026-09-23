@@ -884,3 +884,104 @@ html { scroll-behavior: smooth; }
 .icon-shake {
   animation: icon-bounce 0.4s ease-out;
 }
+
+/* ── Splash Screen ── */
+.splash-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.splash-half {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50vh;
+  background: var(--c-bg);
+  transition: transform 0.9s cubic-bezier(0.76, 0, 0.24, 1);
+  will-change: transform;
+}
+.splash-top { 
+  top: 0; 
+  border-bottom: 1px solid var(--c-outline); 
+}
+.splash-bottom { 
+  bottom: 0; 
+}
+
+.splash-content {
+  position: relative;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  animation: splash-in 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.splash-icon {
+  width: 48px;
+  height: 48px;
+  color: var(--c-primary);
+}
+
+.splash-title {
+  font-family: var(--ff-head);
+  font-size: 40px;
+  font-weight: 700;
+  color: var(--c-on-bg);
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.splash-line {
+  width: 0px;
+  height: 4px;
+  background: var(--c-primary);
+  border-radius: 4px;
+  animation: splash-line-expand 0.8s cubic-bezier(0.76, 0, 0.24, 1) 0.4s forwards;
+}
+
+@keyframes splash-in {
+  0% { opacity: 0; transform: translateY(20px) scale(0.95); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes splash-line-expand {
+  0% { width: 0px; }
+  100% { width: 64px; }
+}
+
+/* Hide State */
+.splash-screen.hide .splash-top { transform: translateY(-100%); }
+.splash-screen.hide .splash-bottom { transform: translateY(100%); }
+.splash-screen.hide .splash-content { 
+  opacity: 0; 
+  transform: scale(1.1);
+  letter-spacing: 0.1em;
+}
+
+/* Staggered Entrance for App Elements */
+.lp-nav, .lp-hero, .lp-editor-wrapper {
+  opacity: 0;
+  transform: translateY(30px);
+}
+body.app-ready .lp-nav {
+  animation: fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+}
+body.app-ready .lp-hero {
+  animation: fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.35s forwards;
+}
+body.app-ready .lp-editor-wrapper {
+  animation: fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.5s forwards;
+}
+
+@keyframes fade-up {
+  0% { opacity: 0; transform: translateY(30px); }
+  100% { opacity: 1; transform: translateY(0); }
+}

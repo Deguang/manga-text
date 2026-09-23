@@ -1,3 +1,22 @@
+
+// ─── Splash Screen ────────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  // Hold splash for 1.2s to show off the logo animation, then trigger hide
+  setTimeout(() => {
+    const splash = document.getElementById('splashScreen');
+    if (splash) {
+      splash.classList.add('hide');
+    }
+    // Tell app it's ready so elements fade up
+    document.body.classList.add('app-ready');
+    
+    // Remove from DOM entirely after transition ends (0.9s)
+    setTimeout(() => {
+      if (splash) splash.remove();
+    }, 1000);
+  }, 1200);
+});
+
 import { dict } from "./i18n.js";
 
 import './style.css';
