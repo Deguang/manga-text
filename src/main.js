@@ -1282,7 +1282,7 @@ const btnGridGenerate = document.getElementById('btnGridGenerate');
 const gridTmplBtns = document.querySelectorAll('.grid-tmpl-btn');
 
 let currentGridTmpl = '1x2';
-let cellImages = {}; // { cellIndex: ImageObject }
+let cellImages = {}; // { cellIndex: { img: Image, panX: number, panY: number } }
 let activeCellIdx = null;
 
 const tmplDefs = {
@@ -1294,7 +1294,9 @@ const tmplDefs = {
 if (btnOpenGrid) {
   btnOpenGrid.addEventListener('click', () => {
     gridModal.style.display = 'flex';
-    renderGridComposer('1x2');
+    if (!gridComposer.hasChildNodes()) {
+      renderGridComposer('1x2');
+    }
   });
   
   btnGridClose.addEventListener('click', () => {
@@ -1335,38 +1337,94 @@ if (btnOpenGrid) {
       cell.style.cursor = 'pointer';
       cell.style.overflow = 'hidden';
       cell.style.position = 'relative';
-      cell.innerHTML = `<i data-lucide="image-plus" style="color:#94a3b8; width:24px; height:24px;"></i>`;
+      cell.innerHTML = `
+        <div class="placeholder" style="pointer-events:none; display:flex; flex-direction:column; align-items:center; color:#94a3b8; gap:4px;">
+          <i data-lucide="image-plus" style="width:24px; height:24px;"></i>
+          <span style="font-size:12px;">点击或拖拽</span>
+        </div>
+      `;
       
-      cell.addEventListener('click', () => {
+      // Handle Click to Upload
+      cell.addEventListener('click', (e) => {
         activeCellIdx = i;
         gridFileInput.click();
       });
+
+      // Handle Drag & Drop
+      cell.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        cell.style.background = '#cbd5e1';
+      });
+      cell.addEventListener('dragleave', (e) => {
+        cell.style.background = cellImages[i] ? 'transparent' : '#e2e8f0';
+      });
+      cell.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith('image/')) {
+          activeCellIdx = i;
+          loadGridImage(file);
+        }
+      });
+      
+      // Handle Panning
+      let isPanning = false;
+      let startX, startY;
+      cell.addEventListener('pointerdown', (e) => {
+        if (!cellImages[i]) return;
+        isPanning = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        cell.setPointerCapture(e.pointerId);
+      });
+      cell.addEventListener('pointermove', (e) => {
+        if (!isPanning || !cellImages[i]) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        startX = e.clientX;
+        startY = e.clientY;
+        
+        cellImages[i].panX += dx;
+        cellImages[i].panY += dy;
+        updateCellBackground(cell, cellImages[i]);
+      });
+      cell.addEventListener('pointerup', (e) => { isPanning = false; cell.releasePointerCapture(e.pointerId); });
+      cell.addEventListener('pointercancel', () => isPanning = false);
+      
       gridComposer.appendChild(cell);
     }
     if (typeof renderIcons === "function") renderIcons();
   }
   
-  gridFileInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
+  function loadGridImage(file) {
     if (!file || activeCellIdx === null) return;
     const reader = new FileReader();
     reader.onload = (ev) => {
       const img = new Image();
       img.onload = () => {
-        cellImages[activeCellIdx] = img;
+        cellImages[activeCellIdx] = { img: img, panX: 0, panY: 0 };
         const cell = gridComposer.querySelector(`.grid-cell[data-idx="${activeCellIdx}"]`);
         if (cell) {
-          cell.innerHTML = ''; // remove icon
-          cell.style.backgroundImage = `url(${img.src})`;
-          cell.style.backgroundSize = 'cover';
-          cell.style.backgroundPosition = 'center';
+          const ph = cell.querySelector('.placeholder');
+          if (ph) ph.style.display = 'none';
+          updateCellBackground(cell, cellImages[activeCellIdx]);
+          cell.style.cursor = 'grab';
         }
         gridFileInput.value = '';
       };
       img.src = ev.target.result;
     };
     reader.readAsDataURL(file);
-  });
+  }
+
+  gridFileInput.addEventListener('change', (e) => loadGridImage(e.target.files[0]));
+  
+  function updateCellBackground(cell, data) {
+    cell.style.backgroundImage = `url(${data.img.src})`;
+    cell.style.backgroundSize = 'cover';
+    cell.style.backgroundRepeat = 'no-repeat';
+    cell.style.backgroundPosition = `calc(50% + ${data.panX}px) calc(50% + ${data.panY}px)`;
+  }
   
   btnGridClear.addEventListener('click', () => {
     renderGridComposer(currentGridTmpl);
@@ -1377,7 +1435,7 @@ if (btnOpenGrid) {
     const cvs = document.createElement('canvas');
     // Standard A4-ish manga page resolution
     cvs.width = 1200; 
-    cvs.height = Math.round(1200 * 1.414);
+    cvs.height = Math.round(1200 * 1.414); // 1697
     const ctx = cvs.getContext('2d');
     
     // BG
@@ -1393,6 +1451,15 @@ if (btnOpenGrid) {
     const cellW = (innerW - gutter*(t.cols-1)) / t.cols;
     const cellH = (innerH - gutter*(t.rows-1)) / t.rows;
     
+    // Scale factor from preview cell to real canvas cell
+    // Grid composer is 320x452 with padding/borders
+    const previewPad = 6;
+    const previewGutter = 6;
+    const previewInnerW = 320 - previewPad*2;
+    const previewInnerH = 452 - previewPad*2;
+    const previewCellW = (previewInnerW - previewGutter*(t.cols-1)) / t.cols;
+    const panScaleFactor = cellW / previewCellW; // to map mouse panning accurately
+    
     for (let r=0; r<t.rows; r++) {
       for (let c=0; c<t.cols; c++) {
         const idx = r*t.cols + c;
@@ -1406,22 +1473,40 @@ if (btnOpenGrid) {
         ctx.fillRect(x, y, cellW, cellH);
         
         if (cellImages[idx]) {
-          const img = cellImages[idx];
+          const data = cellImages[idx];
+          const img = data.img;
+          
+          // Object-fit: cover math
           const imgRatio = img.width / img.height;
           const cellRatio = cellW / cellH;
-          let sx, sy, sw, sh;
+          let drawW, drawH;
+          
           if (imgRatio > cellRatio) {
-            sh = img.height;
-            sw = img.height * cellRatio;
-            sx = (img.width - sw) / 2;
-            sy = 0;
+            // Image is wider than cell
+            drawH = cellH;
+            drawW = cellH * imgRatio;
           } else {
-            sw = img.width;
-            sh = img.width / cellRatio;
-            sx = 0;
-            sy = (img.height - sh) / 2;
+            // Image is taller than cell
+            drawW = cellW;
+            drawH = cellW / imgRatio;
           }
-          ctx.drawImage(img, sx, sy, sw, sh, x, y, cellW, cellH);
+          
+          // Apply pan (scaled up from preview)
+          const panX = data.panX * panScaleFactor;
+          const panY = data.panY * panScaleFactor;
+          
+          // Default center position + pan offset
+          const drawX = x + (cellW - drawW)/2 + panX;
+          const drawY = y + (cellH - drawH)/2 + panY;
+          
+          // Clip to cell bounds so image doesn't spill over
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(x, y, cellW, cellH);
+          ctx.clip();
+          
+          ctx.drawImage(img, drawX, drawY, drawW, drawH);
+          ctx.restore();
         }
       }
     }
@@ -1453,12 +1538,4 @@ function loadImageFromUrl(url) {
     }
   };
   img.src = url;
-}
-
-const btnCenterUp = document.getElementById('btnCenterUpload');
-if (btnCenterUp) {
-  btnCenterUp.addEventListener('click', (e) => {
-    e.stopPropagation();
-    document.getElementById('fileInput').click();
-  });
 }
