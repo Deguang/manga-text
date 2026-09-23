@@ -36,13 +36,14 @@
   </head>
   <body>
     <!-- 开屏动画 -->
-    <div id="splashScreen" class="splash-screen">
-      <div class="splash-half splash-top"></div>
-      <div class="splash-half splash-bottom"></div>
-      <div class="splash-content">
-        <i data-lucide="pen-tool" class="splash-icon"></i>
-        <h1 class="splash-title">MangaText Pro</h1>
-        <div class="splash-line"></div>
+    <div id="splashScreen" class="splash-screen manga-splash">
+      <div class="manga-speed-lines"></div>
+      <div class="manga-burst-container">
+        <!-- 爆炸气泡 SVG -->
+        <svg class="manga-burst-bg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <path fill="#FFDF00" stroke="#111" stroke-width="8" stroke-linejoin="round" d="M100 5 L115 40 L160 15 L145 60 L195 65 L160 95 L190 135 L145 140 L155 185 L110 155 L85 195 L65 155 L15 180 L40 135 L5 100 L45 80 L10 35 L60 55 L75 5 Z"/>
+        </svg>
+        <div class="manga-splash-text">Manga<br/>Text<br/><span style="color:#FF3B30">PRO</span></div>
       </div>
     </div>
 

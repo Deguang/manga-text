@@ -1,20 +1,24 @@
 
 // ─── Splash Screen ────────────────────────────────────────────────────────────
 window.addEventListener('load', () => {
-  // Hold splash for 1.2s to show off the logo animation, then trigger hide
+  // 0.2s is when the crash animation hits 40% (scale 0.8)
+  // We trigger the camera shake and show speed lines precisely at impact
+  setTimeout(() => { 
+    document.body.classList.add('manga-shake'); 
+    const lines = document.querySelector('.manga-speed-lines');
+    if (lines) lines.style.opacity = '0.2';
+  }, 350); 
+  
+  // Hold for dramatic effect, then zoom out
   setTimeout(() => {
     const splash = document.getElementById('splashScreen');
-    if (splash) {
-      splash.classList.add('hide');
-    }
-    // Tell app it's ready so elements fade up
+    if (splash) splash.classList.add('hide');
+    
+    document.body.classList.remove('manga-shake');
     document.body.classList.add('app-ready');
     
-    // Remove from DOM entirely after transition ends (0.9s)
-    setTimeout(() => {
-      if (splash) splash.remove();
-    }, 1000);
-  }, 1200);
+    setTimeout(() => { if (splash) splash.remove(); }, 800);
+  }, 2000);
 });
 
 import { dict } from "./i18n.js";

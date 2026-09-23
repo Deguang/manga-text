@@ -886,84 +886,78 @@ html { scroll-behavior: smooth; }
 }
 
 /* ── Splash Screen ── */
-.splash-screen {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
+.manga-splash {
+  position: fixed; inset: 0; z-index: 9999;
+  background: #111; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
 }
 
-.splash-half {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 50vh;
-  background: var(--c-bg);
-  transition: transform 0.9s cubic-bezier(0.76, 0, 0.24, 1);
-  will-change: transform;
-}
-.splash-top { 
-  top: 0; 
-  border-bottom: 1px solid var(--c-outline); 
-}
-.splash-bottom { 
-  bottom: 0; 
+.manga-speed-lines {
+  position: absolute; inset: -50%;
+  background: repeating-conic-gradient(from 0deg, #fff 0deg 3deg, transparent 3deg 8deg);
+  animation: manga-spin 10s linear infinite;
+  opacity: 0;
 }
 
-.splash-content {
-  position: relative;
-  z-index: 10000;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  animation: splash-in 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+.manga-burst-container {
+  position: relative; width: 500px; height: 500px;
+  display: flex; align-items: center; justify-content: center;
+  transform: scale(0);
+  /* The explosive entrance */
+  animation: manga-crash 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.2s forwards;
 }
 
-.splash-icon {
-  width: 48px;
-  height: 48px;
-  color: var(--c-primary);
+.manga-burst-bg {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  animation: manga-pulse 0.1s linear infinite alternate;
 }
 
-.splash-title {
-  font-family: var(--ff-head);
-  font-size: 40px;
-  font-weight: 700;
-  color: var(--c-on-bg);
-  letter-spacing: -0.02em;
-  margin: 0;
+.manga-splash-text {
+  position: relative; z-index: 10;
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-weight: 900; font-size: 72px; line-height: 0.9;
+  color: #fff; text-align: center;
+  text-transform: uppercase;
+  -webkit-text-stroke: 4px #111;
+  text-shadow: 8px 8px 0px #111;
+  transform: rotate(-8deg);
+  margin-top: -20px;
 }
 
-.splash-line {
-  width: 0px;
-  height: 4px;
-  background: var(--c-primary);
-  border-radius: 4px;
-  animation: splash-line-expand 0.8s cubic-bezier(0.76, 0, 0.24, 1) 0.4s forwards;
+@keyframes manga-crash {
+  0% { transform: scale(8); opacity: 0; }
+  40% { transform: scale(0.7); opacity: 1; }
+  70% { transform: scale(1.15); }
+  100% { transform: scale(1); }
 }
 
-@keyframes splash-in {
-  0% { opacity: 0; transform: translateY(20px) scale(0.95); }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
+@keyframes manga-pulse {
+  from { transform: scale(1) rotate(0deg); }
+  to { transform: scale(1.03) rotate(2deg); }
 }
 
-@keyframes splash-line-expand {
-  0% { width: 0px; }
-  100% { width: 64px; }
+@keyframes manga-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
-/* Hide State */
-.splash-screen.hide .splash-top { transform: translateY(-100%); }
-.splash-screen.hide .splash-bottom { transform: translateY(100%); }
-.splash-screen.hide .splash-content { 
-  opacity: 0; 
-  transform: scale(1.1);
-  letter-spacing: 0.1em;
+/* Shake applied to body */
+body.manga-shake {
+  animation: cam-shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes cam-shake {
+  10%, 90% { transform: translate3d(-10px, 5px, 0); }
+  20%, 80% { transform: translate3d(12px, -10px, 0); }
+  30%, 50%, 70% { transform: translate3d(-15px, 12px, 0); }
+  40%, 60% { transform: translate3d(15px, -12px, 0); }
+}
+
+/* Splash out animation */
+.manga-splash.hide {
+  transform: scale(4);
+  opacity: 0;
+  transition: transform 0.6s cubic-bezier(0.7,0,0.3,1), opacity 0.4s ease 0.2s;
 }
 
 /* Staggered Entrance for App Elements */
@@ -980,7 +974,6 @@ body.app-ready .lp-hero {
 body.app-ready .lp-editor-wrapper {
   animation: fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.5s forwards;
 }
-
 @keyframes fade-up {
   0% { opacity: 0; transform: translateY(30px); }
   100% { opacity: 1; transform: translateY(0); }
