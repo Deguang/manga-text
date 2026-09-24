@@ -1159,6 +1159,13 @@ if (btnThemeToggle) {
   function updateThemeIcon(theme) {
     btnThemeToggle.innerHTML = `<i data-lucide="${theme === 'dark' ? 'sun' : 'moon'}" style="width:18px;height:18px;"></i>`;
     if (typeof renderIcons === "function") renderIcons();
+    
+    // Sync theme to Deguang Footer
+    const footer = document.querySelector('deguang-footer');
+    if (footer) {
+      footer.setAttribute('data-theme', theme);
+      footer.className = theme; // fallback
+    }
   }
   // init
   updateThemeIcon(document.documentElement.getAttribute('data-theme') || 'light');
